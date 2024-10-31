@@ -3,6 +3,13 @@
 
 ATENÇÃO: QUANDO ABRIR O PROJETO, RODE: npm install expo
 
+
+## npm run web
+WEB: npx expo install react-native-web react-dom @expo/metro-runtime 
+
+
+
+
 Please install the App Expo Go in Play Store.
 
 Requeriments to run: npm, node.
