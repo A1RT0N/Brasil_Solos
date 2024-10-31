@@ -1,5 +1,8 @@
 # Welcome to your SUCN project 👋
 
+
+ATENÇÃO: QUANDO ABRIR O PROJETO, RODE: npm install expo
+
 Please install the App Expo Go in Play Store.
 
 Requeriments to run: npm, node.
