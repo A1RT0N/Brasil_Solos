@@ -1,0 +1,28 @@
+
+{
+  "expo": {
+    "name": "SUCN",
+    "slug": "SUCN",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./front-end/assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./front-end/assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./front-end/assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./front-end/assets/favicon.png"
+    }
+  }
+}
