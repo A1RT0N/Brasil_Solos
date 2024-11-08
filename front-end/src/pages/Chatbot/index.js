@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, TextInput, Button, Text, RefreshControl } from 'react-native';
+import lammakey from "../../../../env.json"
 
-// TODO: Use .env to import 
-const LLAMA_KEY = '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';
+const LLAMA_KEY = lammakey.LLAMA_KEY;
+
+
 
 export default function Chatbot({ navigation }) {
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,7 +20,7 @@ export default function Chatbot({ navigation }) {
     setInput('');
     setLoading(true);
 
-    const prompt = `${input}`;
+    const prompt = `${input}. `;
 
     try {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -43,14 +46,14 @@ export default function Chatbot({ navigation }) {
 
       if (data.choices && data.choices.length > 0) {
         const botMessage = { role: 'assistant', content: data.choices[0].message.content };
-        setMessages(prevMessages => [...prevMessages, newMessage, botMessage]);
+        setMessages(prevMessages => [...prevMessages, botMessage]);
       } else {
         const botMessage = { role: 'assistant', content: "Desculpe, não consegui gerar uma resposta." };
-        setMessages(prevMessages => [...prevMessages, newMessage, botMessage]);
+        setMessages(prevMessages => [...prevMessages, botMessage]);
       }
     } catch (error) {
       const botMessage = { role: 'assistant', content: "Houve um erro ao enviar a mensagem." };
-      setMessages(prevMessages => [...prevMessages, newMessage, botMessage]);
+      setMessages(prevMessages => [...prevMessages, botMessage]);
     } finally {
       setLoading(false);
     }
