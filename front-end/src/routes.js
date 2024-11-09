@@ -5,7 +5,7 @@ import CalculatorScreen from "./pages/Calculator";
 import ChatbotScreen from "./pages/Chatbot";
 import LabPageScreen from "./pages/LabPage";
 import ProfileScreen from "./pages/Profile";
-import CustomHeader from "./components/CustomHeader";
+import CustomHeader from "../components/CustomHeader";
 
 const Stack = createStackNavigator();
 
