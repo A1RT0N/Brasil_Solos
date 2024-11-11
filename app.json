@@ -1,4 +1,3 @@
-
 {
   "expo": {
     "name": "SUCN",
@@ -23,6 +22,9 @@
     },
     "web": {
       "favicon": "./front-end/assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
