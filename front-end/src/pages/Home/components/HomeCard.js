@@ -11,17 +11,25 @@ const HomeCardContainer = styled.View`
   gap: 8px;
 `;
 
+const HeaderContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
 const HomeCardTitle = styled.Text`
   font-size: 18px;
   font-family: Montserrat_700Bold;
   color: white;
-  margin-bottom: 8px;
 `;
 
-const HomeCard = ({ title, children }) => {
+const HomeCard = ({ title, button, children }) => {
   return (
     <HomeCardContainer>
-      <HomeCardTitle>{title}</HomeCardTitle>
+      <HeaderContainer>
+        <HomeCardTitle>{title}</HomeCardTitle>
+        {button && button}
+      </HeaderContainer>
       {children}
     </HomeCardContainer>
   );

@@ -1,36 +1,62 @@
-import React from 'react';
-import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, ScrollView, Image, TouchableOpacity, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import HomeCard from './components/HomeCard';
+import noticiasData from '../../../../back-end/Web-scrap/noticias.json';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function Home() {
   const navigation = useNavigation();
+  const [news, setNews] = useState([]);
+  const [previousNewsIndices, setPreviousNewsIndices] = useState([]);
 
-  // Funções simuladas para obter as aulas e atividades
-  const getTodayClasses = () => {
-    return [
-      { name: 'Sistemas Operacionais I', schedule: '08:10 - 09:50' },
-      { name: 'Análise e Projeto Orientados a Objetos', schedule: '10:10 - 11:50' }
-    ];
+
+  // TODO: NÃO TÁ GUARDANDO AINDA TÃO BEM AS NOTÍCIAS PARA NÃO REPETIR - CONSERTAR ISSO
+
+  const getRandomNews = async () => { 
+    const totalNoticias = noticiasData.length;
+    let randomIndices = [];
+  
+    const storedIndices = await AsyncStorage.getItem('previousNewsIndices');
+    const parsedIndices = storedIndices ? JSON.parse(storedIndices) : [];
+  
+    while (randomIndices.length < 5) {
+      const randomIndex = Math.floor(Math.random() * totalNoticias);
+      if (!randomIndices.includes(randomIndex) && !parsedIndices.includes(randomIndex)) {
+        randomIndices.push(randomIndex);
+      }
+    }
+  
+    const selectedNews = randomIndices.map(index => noticiasData[index]);
+    setNews(selectedNews);
+    setPreviousNewsIndices(randomIndices);
+  
+    await AsyncStorage.setItem('previousNewsIndices', JSON.stringify(randomIndices));
   };
 
-  const getTodayActivities = () => {
-    return [];
-  };
+  useEffect(() => {
+    getRandomNews();
+  
+    return () => {
+      AsyncStorage.removeItem('previousNewsIndices');
+    };
+  }, []);
+  
 
-  const getWeekActivities = () => {
-    return [];
-  };
+  const getTodayClasses = () => [
+    { name: 'Sistemas Operacionais I', schedule: '08:10 - 09:50' },
+    { name: 'Análise e Projeto Orientados a Objetos', schedule: '10:10 - 11:50' },
+  ];
 
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>Olá, Nome do Usuário Aqui, Eduardo!</Text>
       <Text style={styles.subGreeting}>TEXTO TEXTO TEXTO</Text>
-      <Text style={styles.percentage}>Texto texto texto </Text>
+      <Text style={styles.percentage}>Texto texto texto</Text>
 
       <ScrollView style={styles.scrollContainer}>
-      <Text style={styles.cardText}>TEXTO TEXTO TEXTO </Text>
-        <HomeCard title="Aulas de Hoje">
+        <HomeCard title="Não sei o que colocar aqui">
           {getTodayClasses().length ? (
             getTodayClasses().map((subject, index) => (
               <View key={index} style={[styles.card, styles.classCard]}>
@@ -43,16 +69,24 @@ export default function Home() {
           )}
         </HomeCard>
 
-        <HomeCard title="Atividades da Semana">
-          {getWeekActivities().length ? (
-            getWeekActivities().map((activity, index) => (
-              <View key={index} style={[styles.card, styles.weekActivityCard]}>
-                <Text style={styles.cardText}>{activity.name}</Text>
-                <Text style={styles.cardSubText}>{activity.details}</Text>
-              </View>
+        <HomeCard title="Notícias de Agro" button={
+    <TouchableOpacity style={styles.refreshButton} onPress={getRandomNews}>
+      <Text style={styles.refreshButtonText}>Atualizar</Text>
+    </TouchableOpacity>
+  }>
+       
+          {news.length ? (
+            news.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.newsCard}
+                onPress={() => Linking.openURL(item.url)}>
+                <Image source={{ uri: item.imageUrl }} style={styles.newsImage} />
+                <Text style={styles.newsTitle}>{item.title}</Text>
+              </TouchableOpacity>
             ))
           ) : (
-            <Text style={styles.noActivitiesText}>Sem atividades para essa semana.</Text>
+            <Text style={styles.noActivitiesText}>Sem notícias disponíveis. Conecte-se à internet.</Text>
           )}
         </HomeCard>
       </ScrollView>
@@ -63,7 +97,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000', // Fundo preto para seguir o estilo
+    backgroundColor: '#000',
     padding: 16,
   },
   greeting: {
@@ -90,27 +124,52 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 16,
   },
-  activityCard: {
-    backgroundColor: '#1DB954',
-  },
   classCard: {
     backgroundColor: '#7500BC',
   },
-  weekActivityCard: {
-    backgroundColor: '#FFC107',
+  newsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
-  cardText: {
+  newsTitleText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
   },
-  cardSubText: {
-    fontSize: 14,
+  newsCard: {
+    flexDirection: 'row',
+    backgroundColor: '#333',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  newsImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  newsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
     color: '#fff',
-    marginTop: 8,
+    flex: 1,
   },
   noActivitiesText: {
     color: '#fff',
     fontSize: 14,
+  },
+  refreshButton: {
+    backgroundColor: '#555', 
+    borderRadius: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+  refreshButtonText: {
+    color: '#fff',
+    fontSize: 14, 
   },
 });
