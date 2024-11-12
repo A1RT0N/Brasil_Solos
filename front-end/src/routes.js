@@ -30,13 +30,10 @@ function StarterStack() {
 
 function HomeStack() {
   return (
-    <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTitleAlign: "center" }}>
+    <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="Home"
         component={HomeScreen}
-        options={{
-          header: () => <CustomHeader title="Home" />,
-        }}
       />
     </Stack.Navigator>
   );

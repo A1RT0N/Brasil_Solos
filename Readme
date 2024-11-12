@@ -1,6 +1,7 @@
 # Welcome to SUCN project from UNESCO 🇺🇳
 
-
+* Para rodar no Android, baixar Expo Go e scanear. 
+* Para baixar no iOS, usar a Camera app
 
 
 * Requeriments to run: npm, node, python3
@@ -26,9 +27,17 @@
     npm run web
    ```
 
-In the output, you'll find options to open the app in a
-[Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo. Use the app to scan the QR-Code and run it in your smartphone.
+TODO (Ayrton):
 
-## Issues
+* Colocar tema preto
+* Ver como funciona o QR code do Expo para mandar no pitch no final. 
+* Colocar em Home notícias na área agro nesses sites: agrolink, embrapa, https://www.noticiasagricolas.com.br/, canal rural
+* Ver programas sociais para recomendar para o produtor
+* No lugar da calculadora, colocar dados diários disso: https://www.cepea.esalq.usp.br/br/indicador/acucar.aspx
+* Em LabPage, colocar uma lista dos componentes para o produtor rual colocar a quantidade, mais localização (CEP, essas coisas), mais blocos e no final retornar um bloco com todas as informações (bioma, recomendações de solo)
+* Colocar markdown no chatbot para retornar bonitinho.
 
-In some cases while running in web, run in terminal: npx expo install react-native-web react-dom @expo/metro-runtime 
+TODO (Eduardo):
+
+* Cuidar do backend
+* Cuidar de todo o processo de login e registro + serviços AWS
