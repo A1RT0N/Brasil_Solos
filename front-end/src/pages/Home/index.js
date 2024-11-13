@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, ScrollView, Image, TouchableOpacity, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import HomeCard from './components/HomeCard';
-import noticiasData from '../../../../back-end/Web-scrap/noticias.json';
+import noticiasData from '../../../../back-end/Web-scrap-sem-api/noticias.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 

@@ -1,43 +1,53 @@
 # Welcome to SUCN project from UNESCO 🇺🇳
 
-* Para rodar no Android, baixar Expo Go e scanear. 
-* Para baixar no iOS, usar a Camera app
-
-
-* Requeriments to run: npm, node, python3
-* Install App Expo Go in Play Store.
-
 ## Get started
 
-1. Install dependencies
+1. Instale python3, node e npm do noje.js:
+
+2. Instale dependências do projeto:
 
    ```bash
    npm install
    npm install expo
    ```
 
-2. Start the app in your smartphone with Expo Go
+3. Em celulares Android, baixe Expo Go na Play Store. Para iOS use apenas a câmera para escanear o código.
 
+4. Rode o programa webscrap.js localizado em back-end/Cepae-esalq/webscrap.js com o comando:
    ```bash
-    npx expo start 
-   ```
-   or if you want to run in web
-
-   ```bash
-    npm run web
+   node webscrap.js
    ```
 
-TODO (Ayrton):
+5. Abra um novo terminal, vá para a pasta inicial e, caso queira rodar no celular, faça:
+   ```bash
+   npx expo start
+   ```
+   E escaneie o QR Code. Se quer rodar no navegador pelo pc, faça:
+   ```bash
+   npm run web
+   ```
+
+## TODO (Ayrton):
 
 * Colocar tema preto
-* Ver como funciona o QR code do Expo para mandar no pitch no final. 
-* Colocar em Home notícias na área agro nesses sites: agrolink, embrapa, https://www.noticiasagricolas.com.br/, canal rural
-* Ver programas sociais para recomendar para o produtor
-* No lugar da calculadora, colocar dados diários disso: https://www.cepea.esalq.usp.br/br/indicador/acucar.aspx
+* Colocar em Home notícias na área agro nesses sites: agrolink, embrapa, https://www.noticiasagricolas.com.br/, canal rural ->  CHECK
+* COLOCAR SUBTÍTULO NAS NOTÍCIAS
 * Em LabPage, colocar uma lista dos componentes para o produtor rual colocar a quantidade, mais localização (CEP, essas coisas), mais blocos e no final retornar um bloco com todas as informações (bioma, recomendações de solo)
-* Colocar markdown no chatbot para retornar bonitinho.
+* Se der, colocar calendário para o produtor poder colocar as datas dele (SE DER!!!!)
 
-TODO (Eduardo):
+## Atividades do (Eduardo):
 
-* Cuidar do backend
-* Cuidar de todo o processo de login e registro + serviços AWS
+* Cuidar do resto do backend.
+* Cuidar de todo o processo de login e registro + serviços AWS ou outros serviços de cloud.
+* Cuidar do campo Profile 
+
+## Aticidades demais membros
+
+* Passar as informações do Lab Page detalhadas e sintetizadas.
+* Melhorar a engenharia de prompt do chatbot (somente texto).
+* Ver programas sociais para recomendar para o produtor (colocar no chatbot)
+
+## Questões a discutir em grupo
+
+* Ver como funciona o QR code do Expo para mandar no pitch no final. 
+* (Ayrton) Creio fielmente que devemos colocar uma ferramenta funcional gratuita no nosso projeto (que poucos conhecem), como a https://www.agroapi.cnptia.embrapa.br/portal/

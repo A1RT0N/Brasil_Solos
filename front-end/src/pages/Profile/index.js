@@ -5,7 +5,7 @@ export default function Profile({ navigation }) {
   return (
     <View style={styles.container}>
       <Text>
-        ASbhidasbhadsbhjbhadsbh
+        Aqui será mostrado todos os dados do usuário e também alguns campos para ele. Eduardo irá fazer essa parte.
       </Text>
     </View>
   );
