@@ -27,6 +27,22 @@
    npm run web
    ```
 
+
+# SITE DO PROJETO
+
+Eis aqui os site do projeto: https://expo.dev/accounts/ayrton_filho_dev/projects/SUCN/updates/84a36750-d3ab-438a-9abe-ec705eff30e6
+
+* Lembre-se que você deve ter uma conta no Expo-Go para tal.
+* Lembrando que tem algumas coisas do backend que estão locais. Vou ver de no futuro colocar no github
+* Rodar direto: https://expo.dev/preview/update?message=novas%20tarefas&updateRuntimeVersion=1.0.0&createdAt=2024-11-17T23%3A24%3A51.771Z&slug=exp&projectId=4c3cbb8c-d204-4c08-a1cf-59b1d2f235fd&group=84a36750-d3ab-438a-9abe-ec705eff30e6
+
+* Para dar update no projeto em produção, use:
+
+   ```bash
+   eas update --channel production --message "Descrição da atualização"
+   ```
+
+
 ## TODO (Ayrton):
 
 * Colocar tema preto
@@ -34,6 +50,8 @@
 * COLOCAR SUBTÍTULO NAS NOTÍCIAS
 * Em LabPage, colocar uma lista dos componentes para o produtor rual colocar a quantidade, mais localização (CEP, essas coisas), mais blocos e no final retornar um bloco com todas as informações (bioma, recomendações de solo)
 * Se der, colocar calendário para o produtor poder colocar as datas dele (SE DER!!!!)
+* Melhorar o UX desing: https://www.youtube.com/watch?v=x5hX06YdRvI
+
 
 ## Atividades do (Eduardo):
 

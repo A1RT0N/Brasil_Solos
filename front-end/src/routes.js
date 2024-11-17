@@ -8,8 +8,7 @@ import CalculatorScreen from "./pages/Calculator";
 import ChatbotScreen from "./pages/Chatbot";
 import LabPageScreen from "./pages/LabPage";
 import ProfileScreen from "./pages/Profile";
-import CustomHeader from "../components/CustomHeader";
-import StarterScreen from "./pages/Starter"; // Importa a tela Starter
+import StarterScreen from "./pages/Starter"; 
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -48,27 +47,28 @@ function MainTabNavigator() {
           let iconName;
           if (route.name === 'HomeStack') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Calculator') {
-            iconName = focused ? 'calculator' : 'calculator-outline';
-          } else if (route.name === 'Chatbot') {
+          } else if (route.name === 'Preços') {
+            iconName = focused ? 'newspaper' : 'newspaper-outline'; // Exemplo usando o ícone de nutrição
+          } else if (route.name === 'Chat') {
             iconName = focused ? 'chatbox' : 'chatbox-outline';
-          } else if (route.name === 'LabPage') {
+          } else if (route.name === 'Laboratório') {
             iconName = focused ? 'flask' : 'flask-outline';
-          } else if (route.name === 'Profile') {
+          } else if (route.name === 'Propriedade') {
             iconName = focused ? 'person' : 'person-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: 'purple',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: '#6B8E23',
+        tabBarInactiveTintColor: 'white',
         headerShown: false,
+        tabBarStyle: { backgroundColor: '#121212' }, 
       })}
     >
       <Tab.Screen name="HomeStack" component={HomeStack} options={{ tabBarLabel: "Home" }} />
-      <Tab.Screen name="Calculator" component={CalculatorScreen} />
-      <Tab.Screen name="Chatbot" component={ChatbotScreen} />
-      <Tab.Screen name="LabPage" component={LabPageScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Preços" component={CalculatorScreen} />
+      <Tab.Screen name="Chat" component={ChatbotScreen} />
+      <Tab.Screen name="Laboratório" component={LabPageScreen} />
+      <Tab.Screen name="Propriedade" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
@@ -81,3 +81,4 @@ export function AppRoutes() {
     </Stack.Navigator>
   );
 }
+

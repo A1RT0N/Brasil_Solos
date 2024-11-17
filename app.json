@@ -18,13 +18,26 @@
       "adaptiveIcon": {
         "foregroundImage": "./front-end/assets/adaptative-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ayrton_filho_dev.SUCN"
     },
     "web": {
       "favicon": "./front-end/assets/favicon.png"
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "4c3cbb8c-d204-4c08-a1cf-59b1d2f235fd"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4c3cbb8c-d204-4c08-a1cf-59b1d2f235fd"
+    },
+    "owner": "ayrton_filho_dev"
   }
 }

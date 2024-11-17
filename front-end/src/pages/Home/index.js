@@ -45,8 +45,8 @@ export default function Home() {
   
 
   const getTodayClasses = () => [
-    { name: 'Sistemas Operacionais I', schedule: '08:10 - 09:50' },
-    { name: 'Análise e Projeto Orientados a Objetos', schedule: '10:10 - 11:50' },
+    { name: 'Texto texto', schedule: '08:10 - 09:50' },
+    { name: 'Texto texto', schedule: '10:10 - 11:50' },
   ];
 
   return (
@@ -97,7 +97,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#121212',
     padding: 16,
   },
   greeting: {
@@ -125,7 +125,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   classCard: {
-    backgroundColor: '#7500BC',
+    backgroundColor: '#6B8E23',
+  },
+  cardText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
+  cardSubText: {
+    color: '#FFFFFF', 
+    fontSize: 14,
   },
   newsHeader: {
     flexDirection: 'row',
