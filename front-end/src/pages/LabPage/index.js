@@ -1,5 +1,67 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Button, Text, ScrollView, CheckBox, Picker, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  Button,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+
+function ResultPage({ data, onBack }) {
+  const calculateIrrigationDemand = () => {
+    const kcValues = {
+      Algodão: 0.85,
+      Arroz: 1.2,
+      Café: 0.8,
+      Cana: 1.15,
+      Feijão: 1.0,
+      Mandioca: 0.65,
+      Milho: 1.15,
+      Soja: 0.9,
+      Trigo: 1.15,
+    };
+
+    let irrigationDemand = 0;
+    data.culturas.forEach((cultura) => {
+      if (kcValues[cultura]) {
+        irrigationDemand += kcValues[cultura] * 5 * 30; // Cálculo fictício
+      }
+    });
+
+    return irrigationDemand.toFixed(2);
+  };
+
+  const waterSecurityIndex = Math.random() > 0.5 ? 'Adequado' : 'Crítico';
+  const carbonFootprint = data.tamanhoPropriedade * 10; // Exemplo de cálculo baseado no tamanho da propriedade
+
+  return (
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Resultados</Text>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Demanda de Irrigação</Text>
+        <Text style={styles.cardContent}>
+          Estimativa de volume de água necessário para irrigação com base nas culturas: {calculateIrrigationDemand()} mm/mês
+        </Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Índice de Segurança Hídrica</Text>
+        <Text style={styles.cardContent}>
+          Índice estimado para sua região: {waterSecurityIndex}
+        </Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Pegada de Carbono</Text>
+        <Text style={styles.cardContent}>
+          Estoque estimado de carbono na propriedade: {carbonFootprint} tCO₂
+        </Text>
+      </View>
+      <Button title="Voltar" onPress={onBack} color="#10A37F" />
+    </ScrollView>
+  );
+}
 
 export default function LabPage() {
   const [form, setForm] = useState({
@@ -22,6 +84,17 @@ export default function LabPage() {
     outrosMudancas: '',
   });
 
+  const [loading, setLoading] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+
+  const processarDados = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setShowResults(true);
+    }, 2000); // Simula carregamento
+  };
+
   const handleInputChange = (field, value) => {
     setForm({ ...form, [field]: value });
   };
@@ -33,10 +106,18 @@ export default function LabPage() {
     setForm({ ...form, [field]: updatedArray });
   };
 
-  const processarDados = () => {
-    alert('Dados processados com sucesso!');
-    console.log(form);
-  };
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#10A37F" />
+        <Text style={styles.loadingText}>Processando os dados...</Text>
+      </View>
+    );
+  }
+
+  if (showResults) {
+    return <ResultPage data={form} onBack={() => setShowResults(false)} />;
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -71,7 +152,16 @@ export default function LabPage() {
       />
 
       <Text style={styles.sectionTitle}>Tipo de Produção</Text>
-      {['Para consumo da família', 'Para comércio', 'Lavoura', 'Horta', 'Pomar', 'Pequena criação', 'Pecuária', 'Produtos derivados e processados'].map((item) => (
+      {[
+        'Para consumo da família',
+        'Para comércio',
+        'Lavoura',
+        'Horta',
+        'Pomar',
+        'Pequena criação',
+        'Pecuária',
+        'Produtos derivados e processados',
+      ].map((item) => (
         <TouchableOpacity key={item} onPress={() => toggleCheckbox('tipoProducao', item)}>
           <Text style={form.tipoProducao.includes(item) ? styles.selectedOption : styles.option}>
             {item}
@@ -80,19 +170,13 @@ export default function LabPage() {
       ))}
 
       <Text style={styles.sectionTitle}>Culturas</Text>
-      {['Algodão', 'Arroz', 'Café', 'Cana de açúcar', 'Feijão', 'Mandioca', 'Milho', 'Soja', 'Trigo'].map((item) => (
+      {['Algodão', 'Arroz', 'Café', 'Cana', 'Feijão', 'Mandioca', 'Milho', 'Soja', 'Trigo'].map((item) => (
         <TouchableOpacity key={item} onPress={() => toggleCheckbox('culturas', item)}>
           <Text style={form.culturas.includes(item) ? styles.selectedOption : styles.option}>
             {item}
           </Text>
         </TouchableOpacity>
       ))}
-      <TextInput
-        style={styles.input}
-        placeholder="Outras culturas (especificar)"
-        value={form.outrosCulturas}
-        onChangeText={(text) => handleInputChange('outrosCulturas', text)}
-      />
 
       <Text style={styles.sectionTitle}>Segurança Hídrica</Text>
       <TextInput
@@ -109,72 +193,6 @@ export default function LabPage() {
           </Text>
         </TouchableOpacity>
       ))}
-      <Text style={styles.label}>Disponibilidade de água no ano inteiro?</Text>
-      <TouchableOpacity onPress={() => handleInputChange('aguaAnoInteiro', !form.aguaAnoInteiro)}>
-        <Text style={form.aguaAnoInteiro ? styles.selectedOption : styles.option}>
-          {form.aguaAnoInteiro ? 'Sim' : 'Não'}
-        </Text>
-      </TouchableOpacity>
-      <Text style={styles.label}>Utiliza irrigação?</Text>
-      <TouchableOpacity onPress={() => handleInputChange('irrigacao', !form.irrigacao)}>
-        <Text style={form.irrigacao ? styles.selectedOption : styles.option}>
-          {form.irrigacao ? 'Sim' : 'Não'}
-        </Text>
-      </TouchableOpacity>
-      <TextInput
-        style={styles.input}
-        placeholder="Tempo de uso da irrigação (anos)"
-        value={form.tempoIrrigacao}
-        onChangeText={(text) => handleInputChange('tempoIrrigacao', text)}
-        keyboardType="numeric"
-      />
-
-      <Text style={styles.sectionTitle}>Energia</Text>
-      {['Rede da Cidade', 'Energia Solar', 'Energia Eólica', 'Gás', 'Outra'].map((item) => (
-        <TouchableOpacity key={item} onPress={() => handleInputChange('fonteEnergia', item)}>
-          <Text style={form.fonteEnergia === item ? styles.selectedOption : styles.option}>
-            {item}
-          </Text>
-        </TouchableOpacity>
-      ))}
-      <TextInput
-        style={styles.input}
-        placeholder="Gasto em conta de luz (R$)"
-        value={form.gastoLuz}
-        onChangeText={(text) => handleInputChange('gastoLuz', text)}
-        keyboardType="numeric"
-      />
-
-      <Text style={styles.sectionTitle}>Transporte</Text>
-      {['Carro Flex', 'Carro Álcool', 'Carro Gasolina', 'Barco', 'Avião'].map((item) => (
-        <TouchableOpacity key={item} onPress={() => toggleCheckbox('transporte', item)}>
-          <Text style={form.transporte.includes(item) ? styles.selectedOption : styles.option}>
-            {item}
-          </Text>
-        </TouchableOpacity>
-      ))}
-      <TextInput
-        style={styles.input}
-        placeholder="Gasto com combustíveis (R$)"
-        value={form.gastoCombustivel}
-        onChangeText={(text) => handleInputChange('gastoCombustivel', text)}
-        keyboardType="numeric"
-      />
-
-      <Text style={styles.sectionTitle}>Mudanças Climáticas</Text>
-      {['Seca', 'Inundação', 'Enchente'].map((item) => (
-        <TouchableOpacity key={item} onPress={() => toggleCheckbox('mudancasClimaticas', item)}>
-          <Text style={form.mudancasClimaticas.includes(item) ? styles.selectedOption : styles.option}>
-            {item}
-          </Text>
-        </TouchableOpacity>
-      ))}
-      <TextInput
-        style={styles.input}
-        placeholder="Outras mudanças (especificar)"
-        value={form.outrosMudancas}
-        onChangeText={(text) => handleInputChange('outrosMudancas', text)}
-      />
 
       <Button title="Processar Dados" onPress={processarDados} color="#10A37F" />
     </ScrollView>
@@ -202,9 +220,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  label: {
+  title: {
     color: '#FFF',
-    marginBottom: 10,
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   option: {
     color: '#808080',
@@ -220,11 +241,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#1E5F74',
   },
-  title: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#343541',
+  },
+  loadingText: {
+    marginTop: 10,
     color: '#FFF',
-    fontSize: 24,
+    fontSize: 16,
+  },
+  card: {
+    backgroundColor: '#444654',
+    padding: 20,
+    marginVertical: 10,
+    borderRadius: 10,
+  },
+  cardTitle: {
+    color: '#FFF',
+    fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
+  },
+  cardContent: {
+    color: '#FFF',
+    fontSize: 16,
   },
 });

@@ -38,7 +38,7 @@ export default function Chatbot({ navigation }) {
     https://www.canalrural.com.br/ e https://www.agrolink.com.br/. Atenção: você não deve-se apresentar-se (não mande mensagem de "Olá!", "Tudo bem?" e afins) e não deve necessariamente 
     responder o usuário sobre onde se localizar no aplicativo, nem recomendar todos os sites aqui citados. É somente se for necessário. Atenção: faça uma resposta direta ao ponto e 
     considere as perguntas anteriores do usuário, dadas em: ${previousQuestions}. Caso esteja vazia a lista anterior, significa que essa é sua primeira pergunta. Para evitar a repetição
-    de perguntas, segue aqui suas respostas anteriores (busque nunca repetir uma informação já dita): ${previousResponses}`;
+    de perguntas, segue aqui suas respostas anteriores (busque nunca repetir uma informação já dita): ${previousResponses}. Seja direto na sua resposta.`;
 
     try {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {

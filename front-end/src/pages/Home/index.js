@@ -98,23 +98,23 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#343541', // Cor de fundo principal
+    backgroundColor: '#343541', 
     padding: 16,
   },
   greeting: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFF', // Texto branco
+    color: '#FFF', 
     marginBottom: 4,
   },
   subGreeting: {
     fontSize: 16,
-    color: '#FFF', // Texto branco
+    color: '#FFF', 
     marginBottom: 8,
   },
   percentage: {
     fontSize: 14,
-    color: '#FFF', // Texto branco
+    color: '#FFF', 
     marginBottom: 16,
   },
   scrollContainer: {
@@ -124,23 +124,23 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     marginBottom: 16,
-    backgroundColor: '#525466', // Fundo mais claro para os blocos
+    backgroundColor: '#525466', 
   },
   classCard: {
-    backgroundColor: '#525466', // Fundo mais claro para blocos menores
+    backgroundColor: '#525466', 
     padding: 12,
   },
   cardText: {
-    color: '#FFF', // Texto branco
+    color: '#FFF', 
     fontSize: 16,
   },
   cardSubText: {
-    color: '#B0B0B0', // Texto cinza claro
+    color: '#B0B0B0', 
     fontSize: 14,
   },
   newsCard: {
     flexDirection: 'row',
-    backgroundColor: '#40414F', // Fundo mais escuro para notícias
+    backgroundColor: '#40414F', 
     borderRadius: 10,
     padding: 12,
     marginBottom: 12,
@@ -155,21 +155,21 @@ const styles = StyleSheet.create({
   newsTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFF', // Texto branco
+    color: '#FFF', 
     flex: 1,
   },
   noActivitiesText: {
-    color: '#B0B0B0', // Texto cinza claro
+    color: '#B0B0B0', 
     fontSize: 14,
   },
   refreshButton: {
-    backgroundColor: '#1E5F74', // Botão azul escuro
+    backgroundColor: '#1E5F74', 
     borderRadius: 10,
     paddingVertical: 5,
     paddingHorizontal: 10,
   },
   refreshButtonText: {
-    color: '#FFF', // Texto branco no botão
+    color: '#FFF',
     fontSize: 14,
   },
 });

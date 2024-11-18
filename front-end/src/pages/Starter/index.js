@@ -11,7 +11,7 @@ const Starter = () => {
   return (
     <Background>
       <Logo size={70} />
-      <WelcomeText>{`TEXTO`}</WelcomeText>
+      <WelcomeText>{`Brasil Solos`}</WelcomeText>
       <ButtonView navigation={navigation} />
     </Background>
   );

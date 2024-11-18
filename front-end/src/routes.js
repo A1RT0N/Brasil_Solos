@@ -1,26 +1,33 @@
-import React, { useEffect } from "react";
+import React from "react";
+import { SafeAreaView, StyleSheet } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import HomeScreen from "./pages/Home";
 import CalculatorScreen from "./pages/Calculator";
 import ChatbotScreen from "./pages/Chatbot";
 import LabPageScreen from "./pages/LabPage";
 import ProfileScreen from "./pages/Profile";
-import StarterScreen from "./pages/Starter"; 
+import StarterScreen from "./pages/Starter";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function StarterStack() {
-  
+// Higher-order component to wrap screens in a SafeAreaView
+function withSafeArea(Component) {
+  return (props) => (
+    <SafeAreaView style={styles.safeArea}>
+      <Component {...props} />
+    </SafeAreaView>
+  );
+}
 
+function StarterStack() {
   return (
     <Stack.Navigator initialRouteName="Starter">
       <Stack.Screen
         name="Starter"
-        component={StarterScreen}
+        component={withSafeArea(StarterScreen)}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
@@ -32,7 +39,7 @@ function HomeStack() {
     <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="Home"
-        component={HomeScreen}
+        component={withSafeArea(HomeScreen)}
       />
     </Stack.Navigator>
   );
@@ -58,11 +65,11 @@ function MainTabNavigator() {
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#6B8E23', // Cor dos ícones ativos
-        tabBarInactiveTintColor: '#B0B0B0', // Cor dos ícones inativos
+        tabBarActiveTintColor: '#6B8E23',
+        tabBarInactiveTintColor: '#B0B0B0',
         tabBarStyle: {
-          backgroundColor: '#1A1A1A', // Fundo mais escuro para a barra de navegação
-          borderTopColor: '#121212', // Linha superior da barra
+          backgroundColor: '#1A1A1A',
+          borderTopColor: '#121212',
         },
         headerShown: false,
       })}
@@ -72,14 +79,25 @@ function MainTabNavigator() {
         component={HomeStack}
         options={{ tabBarLabel: "Home" }}
       />
-      <Tab.Screen name="Preços" component={CalculatorScreen} />
-      <Tab.Screen name="Chat" component={ChatbotScreen} />
-      <Tab.Screen name="Laboratório" component={LabPageScreen} />
-      <Tab.Screen name="Propriedade" component={ProfileScreen} />
+      <Tab.Screen
+        name="Preços"
+        component={withSafeArea(CalculatorScreen)}
+      />
+      <Tab.Screen
+        name="Chat"
+        component={withSafeArea(ChatbotScreen)}
+      />
+      <Tab.Screen
+        name="Laboratório"
+        component={withSafeArea(LabPageScreen)}
+      />
+      <Tab.Screen
+        name="Propriedade"
+        component={withSafeArea(ProfileScreen)}
+      />
     </Tab.Navigator>
   );
 }
-
 
 export function AppRoutes() {
   return (
@@ -90,3 +108,9 @@ export function AppRoutes() {
   );
 }
 
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#000", // Fundo padrão
+  },
+});

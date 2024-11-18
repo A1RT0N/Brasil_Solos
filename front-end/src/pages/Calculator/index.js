@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   spacing: {
-    marginBottom: 10, // Adicionado para criar espaço entre o picker e o botão
+    marginBottom: 10, 
   },
   tableContainer: {
     marginTop: 20,
