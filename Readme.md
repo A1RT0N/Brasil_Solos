@@ -34,7 +34,7 @@ Eis aqui os site do projeto: https://expo.dev/accounts/ayrton_filho_dev/projects
 
 * Lembre-se que você deve ter uma conta no Expo-Go para tal.
 * Lembrando que tem algumas coisas do backend que estão locais. Vou ver de no futuro colocar no github
-* Rodar direto: https://expo.dev/preview/update?message=novas%20tarefas&updateRuntimeVersion=1.0.0&createdAt=2024-11-17T23%3A24%3A51.771Z&slug=exp&projectId=4c3cbb8c-d204-4c08-a1cf-59b1d2f235fd&group=84a36750-d3ab-438a-9abe-ec705eff30e6
+
 
 * Para dar update no projeto em produção, use:
 
