@@ -30,7 +30,7 @@
 
 # SITE DO PROJETO
 
-Eis aqui os site do projeto: https://expo.dev/accounts/ayrton_filho_dev/projects/SUCN/updates/8e26a87a-d0fc-496f-811b-8ad3f3bfee7e
+Eis aqui os site do projeto: https://expo.dev/accounts/ayrton_filho_dev/projects/SUCN/updates/0e9edeb8-e04f-4c7b-b9df-39131f7be9c6
 
 * Lembre-se que você deve ter uma conta no Expo-Go para tal.
 * Lembrando que tem algumas coisas do backend que estão locais. Vou ver de no futuro colocar no github
