@@ -94,26 +94,27 @@ export default function Home() {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#343541', // Cor de fundo principal
     padding: 16,
   },
   greeting: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#FFF', // Texto branco
     marginBottom: 4,
   },
   subGreeting: {
     fontSize: 16,
-    color: '#fff',
+    color: '#FFF', // Texto branco
     marginBottom: 8,
   },
   percentage: {
     fontSize: 14,
-    color: '#fff',
+    color: '#FFF', // Texto branco
     marginBottom: 16,
   },
   scrollContainer: {
@@ -123,35 +124,26 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     marginBottom: 16,
+    backgroundColor: '#525466', // Fundo mais claro para os blocos
   },
   classCard: {
-    backgroundColor: '#6B8E23',
+    backgroundColor: '#525466', // Fundo mais claro para blocos menores
+    padding: 12,
   },
   cardText: {
-    color: '#FFFFFF',
+    color: '#FFF', // Texto branco
     fontSize: 16,
   },
   cardSubText: {
-    color: '#FFFFFF', 
+    color: '#B0B0B0', // Texto cinza claro
     fontSize: 14,
-  },
-  newsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  newsTitleText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
   },
   newsCard: {
     flexDirection: 'row',
-    backgroundColor: '#333',
+    backgroundColor: '#40414F', // Fundo mais escuro para notícias
     borderRadius: 10,
-    padding: 10,
-    marginBottom: 16,
+    padding: 12,
+    marginBottom: 12,
     alignItems: 'center',
   },
   newsImage: {
@@ -163,21 +155,21 @@ const styles = StyleSheet.create({
   newsTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#FFF', // Texto branco
     flex: 1,
   },
   noActivitiesText: {
-    color: '#fff',
+    color: '#B0B0B0', // Texto cinza claro
     fontSize: 14,
   },
   refreshButton: {
-    backgroundColor: '#555', 
+    backgroundColor: '#1E5F74', // Botão azul escuro
     borderRadius: 10,
     paddingVertical: 5,
     paddingHorizontal: 10,
   },
   refreshButtonText: {
-    color: '#fff',
-    fontSize: 14, 
+    color: '#FFF', // Texto branco no botão
+    fontSize: 14,
   },
 });

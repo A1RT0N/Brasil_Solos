@@ -58,7 +58,7 @@ export default function Chatbot({ navigation }) {
         setMessages(prevMessages => [...prevMessages, botMessage]);
         setBotResponses([...botResponses, data.choices[0].message.content]); 
       } else {
-        const botMessage = { role: 'assistant', content: "Desculpe, não consegui gerar uma resposta. Certifique-se que está contectado à internet. Reinicie o aplicativo se necessário" };
+        const botMessage = { role: 'assistant', content: "Desculpe, não consegui gerar uma resposta. Certifique-se que está conectado à internet. Reinicie o aplicativo se necessário" };
         setMessages(prevMessages => [...prevMessages, botMessage]);
       }
     } catch (error) {
@@ -76,9 +76,9 @@ export default function Chatbot({ navigation }) {
         renderItem={({ item }) => (
           <View style={item.role === 'user' ? styles.userMessage : styles.botMessage}>
             {item.role === 'assistant' ? (
-              <Markdown>{item.content}</Markdown>
+              <Markdown style={{ body: styles.markdown }}>{item.content}</Markdown>
             ) : (
-              <Text>{item.content}</Text>
+              <Text style={styles.markdown}>{item.content}</Text>
             )}
           </View>
         )}
@@ -90,9 +90,10 @@ export default function Chatbot({ navigation }) {
         value={input}
         onChangeText={setInput}
         placeholder="Digite sua mensagem..."
+        placeholderTextColor="#808080"
       />
-      <Button title="Enviar" onPress={sendMessage} />
-      {loading && <ActivityIndicator size="large" color="#0000ff" />}
+      <Button title="Enviar" onPress={sendMessage} color="#10A37F" />
+      {loading && <ActivityIndicator size="large" color="#10A37F" />}
     </View>
   );
 }
@@ -100,26 +101,36 @@ export default function Chatbot({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#343541',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#40414F',
+    backgroundColor: '#40414F',
+    color: '#FFF',
     padding: 10,
     margin: 10,
+    borderRadius: 8,
   },
   userMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#e1ffc7',
+    backgroundColor: '#1E5F74',
+    color: '#FFF',
     padding: 10,
     borderRadius: 10,
     margin: 5,
+    maxWidth: '75%',
   },
   botMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#c7d3ff',
+    backgroundColor: '#444654',
+    color: '#FFF',
     padding: 10,
     borderRadius: 10,
     margin: 5,
+    maxWidth: '75%',
+  },
+  markdown: {
+    color: '#FFF',
   },
 });

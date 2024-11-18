@@ -48,7 +48,7 @@ function MainTabNavigator() {
           if (route.name === 'HomeStack') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Preços') {
-            iconName = focused ? 'newspaper' : 'newspaper-outline'; // Exemplo usando o ícone de nutrição
+            iconName = focused ? 'newspaper' : 'newspaper-outline';
           } else if (route.name === 'Chat') {
             iconName = focused ? 'chatbox' : 'chatbox-outline';
           } else if (route.name === 'Laboratório') {
@@ -58,13 +58,20 @@ function MainTabNavigator() {
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#6B8E23',
-        tabBarInactiveTintColor: 'white',
+        tabBarActiveTintColor: '#6B8E23', // Cor dos ícones ativos
+        tabBarInactiveTintColor: '#B0B0B0', // Cor dos ícones inativos
+        tabBarStyle: {
+          backgroundColor: '#1A1A1A', // Fundo mais escuro para a barra de navegação
+          borderTopColor: '#121212', // Linha superior da barra
+        },
         headerShown: false,
-        tabBarStyle: { backgroundColor: '#121212' }, 
       })}
     >
-      <Tab.Screen name="HomeStack" component={HomeStack} options={{ tabBarLabel: "Home" }} />
+      <Tab.Screen
+        name="HomeStack"
+        component={HomeStack}
+        options={{ tabBarLabel: "Home" }}
+      />
       <Tab.Screen name="Preços" component={CalculatorScreen} />
       <Tab.Screen name="Chat" component={ChatbotScreen} />
       <Tab.Screen name="Laboratório" component={LabPageScreen} />
@@ -72,6 +79,7 @@ function MainTabNavigator() {
     </Tab.Navigator>
   );
 }
+
 
 export function AppRoutes() {
   return (

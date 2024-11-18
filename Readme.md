@@ -43,13 +43,10 @@ Eis aqui os site do projeto: https://expo.dev/accounts/ayrton_filho_dev/projects
    ```
 
 
-## TODO (Ayrton):
+## Dúvidas (Ayrton):
 
-* Colocar tema preto
-* Colocar em Home notícias na área agro nesses sites: agrolink, embrapa, https://www.noticiasagricolas.com.br/, canal rural ->  CHECK
-* COLOCAR SUBTÍTULO NAS NOTÍCIAS
 * Em LabPage, colocar uma lista dos componentes para o produtor rual colocar a quantidade, mais localização (CEP, essas coisas), mais blocos e no final retornar um bloco com todas as informações (bioma, recomendações de solo)
-* Se der, colocar calendário para o produtor poder colocar as datas dele (SE DER!!!!)
+* Se der, colocar calendário para o produtor poder colocar as datas dele (SE DER!!!!) -> Vamos ainda fazer essa ideia? Vai dar trabalho
 * Melhorar o UX desing: https://www.youtube.com/watch?v=x5hX06YdRvI
 
 
@@ -58,8 +55,9 @@ Eis aqui os site do projeto: https://expo.dev/accounts/ayrton_filho_dev/projects
 * Cuidar do resto do backend.
 * Cuidar de todo o processo de login e registro + serviços AWS ou outros serviços de cloud.
 * Cuidar do campo Profile 
+* Fazer web scrapping disso para pegar dados de produtores rurais como em: https://sncr.serpro.gov.br/sncr-web/consultaPublica.jsf;jsessionid=-iMj9v2I5rCP-vao4gXcRfdV.sncr-web6?windowId=8bf
 
-## Aticidades demais membros
+## Atividades demais membros
 
 * Passar as informações do Lab Page detalhadas e sintetizadas.
 * Melhorar a engenharia de prompt do chatbot (somente texto).
@@ -68,4 +66,4 @@ Eis aqui os site do projeto: https://expo.dev/accounts/ayrton_filho_dev/projects
 ## Questões a discutir em grupo
 
 * Ver como funciona o QR code do Expo para mandar no pitch no final. 
-* (Ayrton) Creio fielmente que devemos colocar uma ferramenta funcional gratuita no nosso projeto (que poucos conhecem), como a https://www.agroapi.cnptia.embrapa.br/portal/
+* (Ayrton) Creio fielmente que devemos colocar uma ferramenta funcional gratuita no nosso projeto (que poucos conhecem), como a https://www.agroapi.cnptia.embrapa.br/portal/. No github tem algumas dessas API's crackeadas pelo que lembro (tipo de imagem de satélite).

@@ -15,6 +15,7 @@ fetch(url)
       })
       .map(article => ({
         title: article.title,
+        subtitle: article.description || "Sem subtítulo disponível", // Inclui o subtítulo
         url: article.url,
         imageUrl: article.urlToImage && !article.urlToImage.includes('gif') && !article.urlToImage.includes('video') ? article.urlToImage : null
       }))
