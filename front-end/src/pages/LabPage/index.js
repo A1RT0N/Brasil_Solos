@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import firebaseConfig from "../../firebase/config"
+import { initializeApp } from 'firebase/app'
+import { getFirestore, setDoc, doc, query, where, getDocs,collection } from "firebase/firestore"
 import {
   View,
   StyleSheet,
@@ -65,6 +68,7 @@ function ResultPage({ data, onBack }) {
 
 export default function LabPage() {
   const [form, setForm] = useState({
+    user: 'eduardozhaffari@gmail.com',
     cep: '',
     municipio: '',
     codigoImovel: '',
@@ -87,6 +91,10 @@ export default function LabPage() {
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
 
+
+
+  const [temPropriedade, setTemPropriedade] = useState(false);
+
   const processarDados = () => {
     setLoading(true);
     setTimeout(() => {
@@ -94,6 +102,27 @@ export default function LabPage() {
       setShowResults(true);
     }, 2000); // Simula carregamento
   };
+
+  const registrarDados = () => {
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getFirestore(firebaseApp);
+    const docRef = setDoc(doc(db, "propriedades", "eduardozhaffari@gmail.com"), form);
+  }
+
+  const recuperarDados = async () => {
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getFirestore(firebaseApp);
+    const propriedadesRef = collection(db, "propriedades");
+    const q = query(propriedadesRef, where("user", "==", "eduardozhaffari@gmail.com"));
+    const querySnapshot = await getDocs(q);
+
+    console.log(querySnapshot.docs);
+    querySnapshot.forEach((doc) => {
+      setForm(doc.data());
+    });
+
+  }
 
   const handleInputChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -122,6 +151,10 @@ export default function LabPage() {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Preencha os Dados da Propriedade</Text>
+
+      <Text style={styles.title}>Já preencheu?</Text>
+      <Button title="Carregar os dados" onPress={recuperarDados} color="#10A37F" />
+
 
       <TextInput
         style={styles.input}
@@ -193,6 +226,8 @@ export default function LabPage() {
           </Text>
         </TouchableOpacity>
       ))}
+
+      <Button title="Salvar Dados" onPress={registrarDados} color="#10A37F" />
 
       <Button title="Processar Dados" onPress={processarDados} color="#10A37F" />
     </ScrollView>
