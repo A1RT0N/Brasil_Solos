@@ -9,6 +9,7 @@ import ChatbotScreen from "./pages/Chatbot";
 import LabPageScreen from "./pages/LabPage";
 import ProfileScreen from "./pages/Profile";
 import StarterScreen from "./pages/Starter";
+import LoginScreen from "./pages/LoginScreen"
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -33,6 +34,19 @@ function StarterStack() {
     </Stack.Navigator>
   );
 }
+
+function LoginStack() {
+  return (
+    <Stack.Navigator initialRouteName="Login">
+      <Stack.Screen
+        name="Login"
+        component={withSafeArea(LoginScreen)}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 
 function HomeStack() {
   return (
@@ -101,8 +115,9 @@ function MainTabNavigator() {
 
 export function AppRoutes() {
   return (
-    <Stack.Navigator initialRouteName="StarterStack" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="StarterStack" component={StarterStack} />
+      <Stack.Screen name="LoginStack" component={LoginStack} />
       <Stack.Screen name="MainTabNavigator" component={MainTabNavigator} />
     </Stack.Navigator>
   );
