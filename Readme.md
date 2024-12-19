@@ -67,3 +67,9 @@ Eis aqui os site do projeto: https://expo.dev/accounts/ayrton_filho_dev/projects
 
 * Ver como funciona o QR code do Expo para mandar no pitch no final. 
 * (Ayrton) Creio fielmente que devemos colocar uma ferramenta funcional gratuita no nosso projeto (que poucos conhecem), como a https://www.agroapi.cnptia.embrapa.br/portal/. No github tem algumas dessas API's crackeadas pelo que lembro (tipo de imagem de satélite).
+
+
+## Observações de problemas
+
+Caso tenha alguns problemas de permissão ao rodar o código, como esse: sh: 1: expo: Permission denied, rode isso (para linux):
+chmod +x node_modules/.bin/expo

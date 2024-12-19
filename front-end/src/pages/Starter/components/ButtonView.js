@@ -24,7 +24,7 @@ export const BlueColorText = styled.Text`
 const ButtonView = ({ navigation }) => {
   return (
     <ButtonViewView>
-      <Button text="Entrar" width="90%" onPress={() => navigation.navigate("MainTabNavigator")} />
+      <Button text="Entrar" width="90%" onPress={() => navigation.navigate("Login")} />
       <ButtonViewText>
         Criado <BlueColorText>por Ayrton</BlueColorText> por{" "}
         <BlueColorText>Brasil Solos</BlueColorText>

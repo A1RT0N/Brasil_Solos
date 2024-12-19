@@ -9,7 +9,10 @@ import ChatbotScreen from "./pages/Chatbot";
 import LabPageScreen from "./pages/LabPage";
 import ProfileScreen from "./pages/Profile";
 import StarterScreen from "./pages/Starter";
-import LoginScreen from "./pages/LoginScreen"
+import LoginScreen from "./pages/LoginScreen/index"
+
+import RegistrationScreen from "./pages/RegistrationScreen"; // Importe a tela de registro
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -115,9 +118,10 @@ function MainTabNavigator() {
 
 export function AppRoutes() {
   return (
-    <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="StarterStack" component={StarterStack} />
-      <Stack.Screen name="LoginStack" component={LoginStack} />
+    <Stack.Navigator initialRouteName="Starter" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Starter" component={StarterStack} />
+      <Stack.Screen name="Login" component={withSafeArea(LoginScreen)} />
+      <Stack.Screen name="Registration" component={withSafeArea(RegistrationScreen)} />
       <Stack.Screen name="MainTabNavigator" component={MainTabNavigator} />
     </Stack.Navigator>
   );
