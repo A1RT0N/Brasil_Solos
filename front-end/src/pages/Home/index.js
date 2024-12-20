@@ -1,18 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, StyleSheet, Text, ScrollView, Image, TouchableOpacity, Linking } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import HomeCard from './components/HomeCard';
 import noticiasData from '../../../../back-end/Web-scrap-sem-api/noticias.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import firebaseConfig from '../../firebase/config';
+
+
+import { GlobalContext } from '../../contexts/GlobalContext';
+
+
 
 export default function Home() {
-  const navigation = useNavigation();
   const [news, setNews] = useState([]);
   const [previousNewsIndices, setPreviousNewsIndices] = useState([]);
+  const { globalEmail } = useContext(GlobalContext); 
 
+  const [userName, setUserName] = useState('');
 
-  // TODO: NÃO TÁ GUARDANDO AINDA TÃO BEM AS NOTÍCIAS PARA NÃO REPETIR - CONSERTAR ISSO
 
   const getRandomNews = async () => { 
     const totalNoticias = noticiasData.length;
@@ -35,13 +42,38 @@ export default function Home() {
     await AsyncStorage.setItem('previousNewsIndices', JSON.stringify(randomIndices));
   };
 
+
+  // ARRUMAR AQUI QUANDO CONSERTAR
+
+  const fetchUserName = async () => {
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getFirestore(firebaseApp);
+    const userRef = collection(db, 'propriedades');
+    const q = query(userRef, where('user', '==', globalEmail));
+
+    try {
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const userData = querySnapshot.docs[0].data();
+        setUserName(userData.nome || 'produtor rural');
+      } else {
+        setUserName('NOME DO USUÁRIO AQUI, EDU');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar o nome do usuário:', error);
+      setUserName('Usuário');
+    }
+  };
+
   useEffect(() => {
     getRandomNews();
-  
+    fetchUserName();
+
     return () => {
       AsyncStorage.removeItem('previousNewsIndices');
     };
   }, []);
+
   
 
   const getTodayClasses = () => [
@@ -49,11 +81,16 @@ export default function Home() {
     { name: 'Texto texto', schedule: '10:10 - 11:50' },
   ];
 
+  const handlePress = () => {
+    Linking.openURL('https://docs.google.com/forms/d/e/1FAIpQLSdZ68Q3yAxmF_bfQkQWZhZIchwGuekHqdiwHy_ciEtzX6x0ng/viewform?usp=sf_link');
+  };
+
+
   return (
     <View style={styles.container}>
-      <Text style={styles.greeting}>Olá, Nome do Usuário Aqui, Eduardo!</Text>
+      <Text style={styles.greeting}>Olá, {userName}</Text>
       <Text style={styles.subGreeting}>TEXTO TEXTO TEXTO</Text>
-      <Text style={styles.percentage}>Texto texto texto</Text>
+      <Text style={[styles.link, { marginBottom: 20 }]} onPress={handlePress}> Avalie nosso aplicativo clicando aqui</Text>
 
       <ScrollView style={styles.scrollContainer}>
         <HomeCard title="Não sei o que colocar aqui">
@@ -100,6 +137,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#343541', 
     padding: 16,
+  },
+  link: {
+    color: 'white',
+    textDecorationLine: 'underline',
   },
   greeting: {
     fontSize: 24,

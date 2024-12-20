@@ -25,6 +25,8 @@ export default function Login() {
 
     signInWithEmailAndPassword(auth, email, password)
         .then(() => {
+        console.log('Email após login:', email); // Verifica o e-mail antes de atualizar o contexto
+
         setGlobalEmail(email); // Atualiza o e-mail globalmente
         navigation.navigate("MainTabNavigator"); // Redireciona para a Home após o login
     })

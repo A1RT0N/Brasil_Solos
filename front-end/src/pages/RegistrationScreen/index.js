@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
@@ -7,6 +7,7 @@ import firebaseConfig from '../../firebase/config';
 import { initializeApp } from 'firebase/app';
 import styles from './styles';
 import { useNavigation } from '@react-navigation/native';
+import { GlobalContext } from '../../contexts/GlobalContext'; 
 
 export default function RegistrationScreen() {
   const [fullName, setFullName] = useState('');
@@ -14,6 +15,7 @@ export default function RegistrationScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  const { setGlobalEmail } = useContext(GlobalContext); // Utilizar o setGlobalEmail do contexto
   const navigation = useNavigation(); // Utilize useNavigation para acessar o objeto de navegação
 
   const firebaseApp = initializeApp(firebaseConfig);
@@ -27,6 +29,7 @@ export default function RegistrationScreen() {
       alert('Suas senhas não são iguais.');
       return;
     }
+
     const auth = getAuth(firebaseApp);
     createUserWithEmailAndPassword(auth, email, password)
       .then((response) => {
@@ -37,6 +40,8 @@ export default function RegistrationScreen() {
           email: email,
           name: fullName.trim(),
         });
+
+        setGlobalEmail(email); // Atualiza o e-mail globalmente no contexto
         navigation.navigate('MainTabNavigator'); // Redireciona para Home após o registro
       })
       .catch((error) => {
