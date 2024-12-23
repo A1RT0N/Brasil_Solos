@@ -1,16 +1,38 @@
-import React from 'react';
+import {React, useState, useContext} from 'react';
 import { View, StyleSheet, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import firebaseConfig from "../../firebase/config"
+import { initializeApp } from 'firebase/app'
+import { GlobalContext } from '../../contexts/GlobalContext'
+import { getFirestore, setDoc, doc, query, where, getDocs,collection } from "firebase/firestore"
 
 // TODO: Eduardo ligar isso com AWS e dados de registro e login
 
 export default function Profile({ navigation }) {
-  const user = {
-    name: 'Eduardo Santos',
-    email: 'eduardo.santos@email.com',
-    sexo: 'Masculino',
-    bio: 'Informações do produtor rural e dos dados gerados pelo Lab Page',
-    profilePicture: 'https://randomuser.me/api/portraits/lego/1.jpg',
-  };
+  const { globalEmail } = useContext(GlobalContext);
+
+  const [user, setUser] = useState({
+    id: '',
+    name: '',
+    email: globalEmail
+  });
+
+  const profilePicture = 'https://randomuser.me/api/portraits/lego/1.jpg';
+  
+
+  const recuperarDados = async () => {
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getFirestore(firebaseApp);
+    const propriedadesRef = collection(db, "users");
+    const q = query(propriedadesRef, where("email", "==", globalEmail));
+    const querySnapshot = await getDocs(q);
+
+    console.log(querySnapshot.docs);
+    querySnapshot.forEach((doc) => {
+      setUser(doc.data());
+    });
+
+  }
 
   return (
 
@@ -18,20 +40,15 @@ export default function Profile({ navigation }) {
     <ScrollView style={styles.container}>
     
       <View style={styles.header}>
-        <Image style={styles.profileImage} source={{ uri: user.profilePicture }} />
+      <TouchableOpacity style={styles.button} onPress={recuperarDados}>
+        <Text style={styles.buttonText}>Carregar suas informações</Text>
+      </TouchableOpacity>
+        <Image style={styles.profileImage} source={{ uri: profilePicture }} />
         <Text style={styles.name}>{user.name}</Text>
         <Text style={styles.email}>{user.email}</Text>
-        <Text style={styles.sexo}>{user.sexo}</Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Sobre</Text>
-        <Text style={styles.sectionContent}>{user.bio}</Text>
-      </View>
-
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Settings')}>
-        <Text style={styles.buttonText}>Configurações</Text>
-      </TouchableOpacity>
+      
     </ScrollView>
   );
 }

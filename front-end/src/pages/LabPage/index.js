@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import firebaseConfig from "../../firebase/config"
 import { initializeApp } from 'firebase/app'
+import { GlobalContext } from '../../contexts/GlobalContext'
 import { getFirestore, setDoc, doc, query, where, getDocs,collection } from "firebase/firestore"
 import {
   View,
@@ -37,6 +38,8 @@ function ResultPage({ data, onBack }) {
     return irrigationDemand.toFixed(2);
   };
 
+  
+
   const waterSecurityIndex = Math.random() > 0.5 ? 'Adequado' : 'Crítico';
   const carbonFootprint = data.tamanhoPropriedade * 10; // Exemplo de cálculo baseado no tamanho da propriedade
 
@@ -67,8 +70,12 @@ function ResultPage({ data, onBack }) {
 }
 
 export default function LabPage() {
+
+  const { globalEmail } = useContext(GlobalContext);
+  console.log(globalEmail)
+
   const [form, setForm] = useState({
-    user: 'eduardozhaffari@gmail.com',
+    user: globalEmail,
     cep: '',
     municipio: '',
     codigoImovel: '',
@@ -104,9 +111,12 @@ export default function LabPage() {
   };
 
   const registrarDados = () => {
+    
+
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getFirestore(firebaseApp);
-    const docRef = setDoc(doc(db, "propriedades", "eduardozhaffari@gmail.com"), form);
+    const docRef = setDoc(doc(db, "propriedades", globalEmail), form);
+    alert('Dados salvos com sucesso')
   }
 
   const recuperarDados = async () => {
@@ -114,7 +124,7 @@ export default function LabPage() {
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getFirestore(firebaseApp);
     const propriedadesRef = collection(db, "propriedades");
-    const q = query(propriedadesRef, where("user", "==", "eduardozhaffari@gmail.com"));
+    const q = query(propriedadesRef, where("user", "==", globalEmail));
     const querySnapshot = await getDocs(q);
 
     console.log(querySnapshot.docs);

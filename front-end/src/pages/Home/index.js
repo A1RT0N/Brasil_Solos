@@ -48,16 +48,15 @@ export default function Home() {
   const fetchUserName = async () => {
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getFirestore(firebaseApp);
-    const userRef = collection(db, 'propriedades');
-    const q = query(userRef, where('user', '==', globalEmail));
-
+    const userRef = collection(db, 'users');
+    const q = query(userRef, where('email', '==', globalEmail));
     try {
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
         const userData = querySnapshot.docs[0].data();
-        setUserName(userData.nome || 'produtor rural');
+        setUserName(userData.name);
       } else {
-        setUserName('NOME DO USUÁRIO AQUI, EDU');
+        setUserName(userData.name);
       }
     } catch (error) {
       console.error('Erro ao buscar o nome do usuário:', error);
