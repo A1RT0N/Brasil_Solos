@@ -14,6 +14,9 @@
 3. Em celulares Android, baixe Expo Go na Play Store. Para iOS use apenas a câmera para escanear o código.
 
 4. Rode o programa webscrap.js localizado em back-end/Cepae-esalq/webscrap.js com o comando:
+
+NÃO VAI PRECISAR MAIS PQ JÁ RODA ONLINE EM https://dashboard.render.com/web/srv-ctpip93qf0us73ecfcp0/deploys/dep-ctpj9rq3esus73dihoqg
+
    ```bash
    node webscrap.js
    ```

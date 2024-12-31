@@ -8,6 +8,7 @@ import { initializeApp } from 'firebase/app';
 import styles from './styles';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalContext } from '../../contexts/GlobalContext'; 
+import { Title } from 'react-native-paper';
 
 export default function RegistrationScreen() {
   const [fullName, setFullName] = useState('');

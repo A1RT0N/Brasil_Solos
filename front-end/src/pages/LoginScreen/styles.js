@@ -3,17 +3,18 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: '#2C2C38',
     },
     title: {
 
     },
     logo: {
-        flex: 1,
         height: 120,
-        width: 90,
-        alignSelf: "center",
-        margin: 30
+        width: 120, // Garantir que largura e altura sejam iguais
+        borderRadius: 60, // Metade da largura/altura para torná-la redonda
+        alignSelf: 'center',
+        margin: 30,
     },
     input: {
         height: 48,
@@ -44,11 +45,12 @@ export default StyleSheet.create({
     footerView: {
         flex: 1,
         alignItems: "center",
-        marginTop: 20
+        marginTop: 20,
+        color: 'white',
     },
     footerText: {
         fontSize: 16,
-        color: '#2e2e2d'
+        color: '#FFFFFF',
     },
     footerLink: {
         color: "#788eec",

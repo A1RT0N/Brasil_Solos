@@ -18,6 +18,7 @@
     "@react-navigation/stack": "^6.4.1",
     "@types/react": "~18.3.12",
     "@xenova/transformers": "^2.17.2",
+    "axios": "^1.7.9",
     "cors": "^2.8.5",
     "expo": "^52.0.4",
     "expo-font": "~13.0.1",
@@ -35,6 +36,7 @@
     "react-native": "0.76.1",
     "react-native-dotenv": "^3.4.11",
     "react-native-elements": "^3.4.3",
+    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-markdown-display": "^7.0.2",
@@ -46,6 +48,7 @@
     "react-native-toast-message": "^2.2.1",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.10",
+    "shapefile": "^0.6.6",
     "styled-components": "^6.1.13",
     "typescript": "~5.3.3",
     "updates": "^16.4.0"

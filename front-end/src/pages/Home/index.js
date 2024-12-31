@@ -76,8 +76,8 @@ export default function Home() {
   
 
   const getTodayClasses = () => [
-    { name: 'Texto texto', schedule: '08:10 - 09:50' },
-    { name: 'Texto texto', schedule: '10:10 - 11:50' },
+    { name: 'A minha participação é voluntária e gratuita.', schedule: '' },
+    { name: 'Os dados digitados são verdadeiros, e podem ser utilizados para propor melhorias ao sistema de agricultura no Brasil.', schedule: '' },
   ];
 
   const handlePress = () => {
@@ -87,12 +87,12 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.greeting}>Olá, {userName}</Text>
-      <Text style={styles.subGreeting}>TEXTO TEXTO TEXTO</Text>
-      <Text style={[styles.link, { marginBottom: 20 }]} onPress={handlePress}> Avalie nosso aplicativo clicando aqui</Text>
+      <Text style={styles.greeting}>Olá, {userName}! </Text>
+      <Text style={styles.subGreeting}>Brasil Solos tem como missão conhecer melhor a realidade da sua propriedade rural, e propor soluções que aumentem o valor e a qualidade dos seus produtos.</Text>
+      <Text style={[styles.link, { marginBottom: 20 }]} onPress={handlePress}> Avalie nosso aplicativo clicando aqui!</Text>
 
       <ScrollView style={styles.scrollContainer}>
-        <HomeCard title="Não sei o que colocar aqui">
+        <HomeCard title="Atenção quanto às seguintes informações:">
           {getTodayClasses().length ? (
             getTodayClasses().map((subject, index) => (
               <View key={index} style={[styles.card, styles.classCard]}>
@@ -101,7 +101,7 @@ export default function Home() {
               </View>
             ))
           ) : (
-            <Text style={styles.noActivitiesText}>Sem aulas hoje.</Text>
+            <Text style={styles.noActivitiesText}>Sem info's hoje.</Text>
           )}
         </HomeCard>
 

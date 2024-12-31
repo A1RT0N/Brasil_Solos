@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import { Linking } from 'react-native';
 import firebaseConfig from "../../firebase/config"
 import { initializeApp } from 'firebase/app'
 import { GlobalContext } from '../../contexts/GlobalContext'
@@ -14,34 +15,41 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
+import {getPolygonByCodImovelAndState} from './shapefile';
+
+const consumer_key = 'IQIC7kqNI0DVXl23ejDNsR9fb64a';
+const consumer_secret = '2Btdt7fBq17pWdY_aduE2sofUFQa';
+const token = '3e51ac87-8135-3d7a-b1c5-81fc42578615';
+
+
 function ResultPage({ data, onBack }) {
-  const calculateIrrigationDemand = () => {
-    const kcValues = {
-      Algodão: 0.85,
-      Arroz: 1.2,
-      Café: 0.8,
-      Cana: 1.15,
-      Feijão: 1.0,
-      Mandioca: 0.65,
-      Milho: 1.15,
-      Soja: 0.9,
-      Trigo: 1.15,
-    };
+  // const calculateIrrigationDemand = () => {
+  //   const kcValues = {
+  //     Algodão: 0.85,
+  //     Arroz: 1.2,
+  //     Café: 0.8,
+  //     Cana: 1.15,
+  //     Feijão: 1.0,
+  //     Mandioca: 0.65,
+  //     Milho: 1.15,
+  //     Soja: 0.9,
+  //     Trigo: 1.15,
+  //   };
 
-    let irrigationDemand = 0;
-    data.culturas.forEach((cultura) => {
-      if (kcValues[cultura]) {
-        irrigationDemand += kcValues[cultura] * 5 * 30; // Cálculo fictício
-      }
-    });
+  //   let irrigationDemand = 0;
+  //   data.culturas.forEach((cultura) => {
+  //     if (kcValues[cultura]) {
+  //       irrigationDemand += kcValues[cultura] * 5 * 30; // Cálculo fictício
+  //     }
+  //   });
 
-    return irrigationDemand.toFixed(2);
-  };
+  //   return irrigationDemand.toFixed(2);
+  // };
 
   
 
-  const waterSecurityIndex = Math.random() > 0.5 ? 'Adequado' : 'Crítico';
-  const carbonFootprint = data.tamanhoPropriedade * 10; // Exemplo de cálculo baseado no tamanho da propriedade
+  // const waterSecurityIndex = Math.random() > 0.5 ? 'Adequado' : 'Crítico';
+  // const carbonFootprint = data.tamanhoPropriedade * 10; // Exemplo de cálculo baseado no tamanho da propriedade
 
   return (
     <ScrollView style={styles.container}>
@@ -93,6 +101,14 @@ export default function LabPage() {
     gastoCombustivel: '',
     mudancasClimaticas: [],
     outrosMudancas: '',
+    produtos: [],
+    mudancasClimaticas: [],
+    outrosMudancas: '',
+    resultadosLaboratorio: '',
+    praticasManejo: [],
+    genero: '',
+    idade: '',
+    perfil: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -158,6 +174,11 @@ export default function LabPage() {
     return <ResultPage data={form} onBack={() => setShowResults(false)} />;
   }
 
+  const openLink = () => {
+    Linking.openURL('https://consultapublica.car.gov.br/publico/imoveis/index')
+      .catch(err => console.error("Não foi possível abrir o link", err));
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Preencha os Dados da Propriedade</Text>
@@ -165,6 +186,36 @@ export default function LabPage() {
       <Text style={styles.title}>Já preencheu?</Text>
       <Button title="Carregar os dados" onPress={recuperarDados} color="#10A37F" />
 
+
+      <Text style={styles.sectionTitle}>Sobre Você</Text>
+
+      <Text style={styles.sectionSubtitle}>Gênero</Text>
+      {['Homem', 'Mulher', 'Prefiro não declarar'].map((item) => (
+        <TouchableOpacity key={item} onPress={() => handleInputChange('genero', item)}>
+          <Text style={form.genero === item ? styles.selectedOption : styles.option}>
+            {item}
+          </Text>
+        </TouchableOpacity>
+      ))}
+
+      <TextInput
+        style={styles.input}
+        placeholder="Idade (anos)"
+        value={form.idade}
+        onChangeText={(text) => handleInputChange('idade', text)}
+        keyboardType="numeric"
+      />
+
+      <Text style={styles.sectionSubtitle}>Perfil</Text>
+      {['Proprietário Rural', 'Estudante USP', 'Engenheiro(a) ou Gestor(a) Ambiental'].map((item) => (
+        <TouchableOpacity key={item} onPress={() => handleInputChange('perfil', item)}>
+          <Text style={form.perfil === item ? styles.selectedOption : styles.option}>
+            {item}
+          </Text>
+        </TouchableOpacity>
+      ))}
+
+      <Text style={styles.sectionTitle}>Sua Propriedade</Text>
 
       <TextInput
         style={styles.input}
@@ -181,11 +232,19 @@ export default function LabPage() {
       />
       <TextInput
         style={styles.input}
-        placeholder="Código do Imóvel Rural"
+        placeholder="Código do Imóvel Rural (SICAR)"
         value={form.codigoImovel}
         onChangeText={(text) => handleInputChange('codigoImovel', text)}
         keyboardType="numeric"
       />
+
+      <Text style={[styles.text, { marginBottom: 10 }]}>
+        Não conhece seu código de imóvel?{' '}
+        <Text style={styles.link} onPress={openLink}>
+          Pesquise aqui.
+        </Text>
+      </Text>
+
       <TextInput
         style={styles.input}
         placeholder="Tamanho da Propriedade (ha)"
@@ -221,6 +280,16 @@ export default function LabPage() {
         </TouchableOpacity>
       ))}
 
+      <Text style={styles.sectionTitle}>Produtos Derivados e Processados</Text>
+      {['Laticínios', 'Carnes Processadas', 'Doces', 'Conservas', 'Outro (digitar)'].map((item) => (
+        <TouchableOpacity key={item} onPress={() => toggleCheckbox('produtos', item)}>
+          <Text style={form.produtos.includes(item) ? styles.selectedOption : styles.option}>
+            {item}
+          </Text>
+        </TouchableOpacity>
+      ))}
+
+
       <Text style={styles.sectionTitle}>Segurança Hídrica</Text>
       <TextInput
         style={styles.input}
@@ -237,6 +306,57 @@ export default function LabPage() {
         </TouchableOpacity>
       ))}
 
+      <Text style={styles.sectionTitle}>Fonte de Energia na Propriedade</Text>
+      {['Rede da Cidade', 'Energia Solar', 'Energia Eólica', 'Gás', 'Outra (digitar)'].map((item) => (
+        <TouchableOpacity key={item} onPress={() => toggleCheckbox('fonteEnergia', item)}>
+          <Text style={form.fonteEnergia.includes(item) ? styles.selectedOption : styles.option}>
+            {item}
+          </Text>
+        </TouchableOpacity>
+      ))}
+      <TextInput
+        style={styles.input}
+        placeholder="Gasto mensal com energia (R$)"
+        value={form.gastoLuz}
+        onChangeText={(text) => handleInputChange('gastoLuz', text)}
+        keyboardType="numeric"
+      />
+
+      <Text style={styles.sectionTitle}>Mudanças no Clima</Text>
+      {['Seca', 'Inundação', 'Enchente', 'Insetos e Pragas', 'Doenças nas Plantas', 'Doenças nos Animais', 'Doenças na Família'].map((item) => (
+        <TouchableOpacity key={item} onPress={() => toggleCheckbox('mudancasClimaticas', item)}>
+          <Text style={form.mudancasClimaticas.includes(item) ? styles.selectedOption : styles.option}>
+            {item}
+          </Text>
+        </TouchableOpacity>
+      ))}
+      <TextInput
+        style={styles.input}
+        placeholder="Outras mudanças percebidas"
+        value={form.outrosMudancas}
+        onChangeText={(text) => handleInputChange('outrosMudancas', text)}
+      />
+
+
+      <Text style={styles.sectionTitle}>Resultados de Laboratório do Solo</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Parâmetros laboratoriais do solo (digitar)"
+        value={form.resultadosLaboratorio}
+        onChangeText={(text) => handleInputChange('resultadosLaboratorio', text)}
+      />
+
+
+      <Text style={styles.sectionTitle}>Práticas de Manejo do Solo</Text>
+      {['Adubação Verde', 'Plantio Direto', 'Rotação de Culturas', 'Reflorestamento', 'Outro (digitar)'].map((item) => (
+        <TouchableOpacity key={item} onPress={() => toggleCheckbox('praticasManejo', item)}>
+          <Text style={form.praticasManejo.includes(item) ? styles.selectedOption : styles.option}>
+            {item}
+          </Text>
+        </TouchableOpacity>
+      ))}
+
+
       <Button title="Salvar Dados" onPress={registrarDados} color="#10A37F" />
 
       <Button title="Processar Dados" onPress={processarDados} color="#10A37F" />
@@ -249,6 +369,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#343541',
     padding: 20,
+    marginTop: 5,
   },
   input: {
     borderWidth: 1,
@@ -256,33 +377,39 @@ const styles = StyleSheet.create({
     backgroundColor: '#40414F',
     color: '#FFF',
     padding: 10,
-    marginBottom: 15,
+    marginTop: 5,
     borderRadius: 8,
   },
   sectionTitle: {
     color: '#FFF',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginTop: 5,
+  },
+  sectionSubtitle: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginTop: 5,
   },
   title: {
     color: '#FFF',
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginTop: 15,
   },
   option: {
     color: '#808080',
     padding: 10,
-    marginBottom: 5,
+    marginTop: 5,
     borderRadius: 8,
     backgroundColor: '#40414F',
   },
   selectedOption: {
     color: '#FFF',
     padding: 10,
-    marginBottom: 5,
+    marginTop: 5,
     borderRadius: 8,
     backgroundColor: '#1E5F74',
   },
@@ -293,24 +420,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#343541',
   },
   loadingText: {
-    marginTop: 10,
+    marginTop: 5,
     color: '#FFF',
     fontSize: 16,
   },
   card: {
     backgroundColor: '#444654',
     padding: 20,
-    marginVertical: 10,
+    marginTop: 5,
     borderRadius: 10,
   },
   cardTitle: {
     color: '#FFF',
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginTop: 5,
   },
   cardContent: {
     color: '#FFF',
     fontSize: 16,
+  },
+  text: {
+    color: '#FFF', // Texto branco
+    fontSize: 16,
+    marginTop: 8, // Espaçamento em cima e embaixo
+  },
+  link: {
+    color: '#FFF', // Cor branca para o link
+    textDecorationLine: 'underline', // Sublinhado
+    marginTop: 8, // Espaçamento em cima e embaixo
   },
 });

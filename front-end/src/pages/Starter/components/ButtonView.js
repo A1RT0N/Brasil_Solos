@@ -26,8 +26,8 @@ const ButtonView = ({ navigation }) => {
     <ButtonViewView>
       <Button text="Entrar" width="90%" onPress={() => navigation.navigate("Login")} />
       <ButtonViewText>
-        Criado <BlueColorText>por Ayrton</BlueColorText> por{" "}
-        <BlueColorText>Brasil Solos</BlueColorText>
+        Criado <BlueColorText>por Ayrton</BlueColorText> em parceria com {" "}
+        <BlueColorText>ESALQ-USP</BlueColorText>
       </ButtonViewText>
     </ButtonViewView>
   );
