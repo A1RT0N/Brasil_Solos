@@ -18,11 +18,17 @@ import {
 
 // Código SICAR de exemplo: MG-3132701-36A6FC6FCCCE4B65B57EAA02DFF5A72F
 
+// Coordenadas Geográficas do Centróide:
+// Lat: 18°10'47,78" S
+// Long: 41°55'24,5" O
+
+// Área do Imóvel Rural:1.253,36 ha
+
+
 
 // API's do AGRO API
 const consumer_key = 'IQIC7kqNI0DVXl23ejDNsR9fb64a';
 const consumer_secret = '2Btdt7fBq17pWdY_aduE2sofUFQa';
-const token = '3e51ac87-8135-3d7a-b1c5-81fc42578615';
 
 import axios from 'axios';
 
@@ -30,9 +36,83 @@ import axios from 'axios';
 const API_KEY_carbono = 'RdDP3Si90TKiPcIkWBBbQ';
 const BASE_URL_carbono = 'https://www.carboninterface.com/api/v1/estimates';
 
+
+const dmsToDecimal = (dmsString) => {
+  const regex = /(\d+)°(\d+)'([\d,]+)"\s*([NSOE])/;
+  const match = dmsString.match(regex);
+
+  if (!match) {
+    throw new Error('Formato de coordenada inválido. Use o formato: 18°10\'47,78" S');
+  }
+
+  const degrees = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+  const seconds = parseFloat(match[3].replace(',', '.'));
+  const direction = match[4];
+
+  let decimal = degrees + minutes / 60 + seconds / 3600;
+
+  if (direction === 'S' || direction === 'O') {
+    decimal *= -1;
+  }
+
+  return decimal;
+};
+
+
 function ResultPage({ data, onBack }) {
   const [carbonFootprint, setCarbonFootprint] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [timeSeries, setTimeSeries] = useState(null);
+
+
+
+  const getTimeSeries = async (latitude, longitude) => {
+    const API_URL = 'https://api.cnptia.embrapa.br/satveg/v2/series'; 
+    const token = '3e51ac87-8135-3d7a-b1c5-81fc42578615'; 
+  
+    try {
+      const response = await axios.post(
+        API_URL,
+        {
+          tipoPerfil: 'ndvi',
+          satelite: 'comb',
+          preFiltro: 3,
+          filtro: 'sav',
+          parametroFiltro: 4,
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      if (response.data && response.data.listaSerie && response.data.listaDatas) {
+        return response.data; // Retorna o objeto completo
+      } else {
+        throw new Error('Resposta inesperada da API.');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar série temporal:', error.response?.data || error.message);
+      return null;
+    }
+  };
+
+
+  useEffect(() => {
+    const fetchTimeSeries = async () => {
+      const timeSeriesData = await getTimeSeries(data.latitude, data.longetude);
+      setTimeSeries(timeSeriesData);
+    };
+  
+    fetchTimeSeries();
+    calculateCarbonFootprint();
+  }, []);
+
 
   const calculateCarbonFootprint = async () => {
     try {
@@ -48,6 +128,7 @@ function ResultPage({ data, onBack }) {
           type: 'electricity',
           electricity_unit: 'kwh',
           electricity_value: electricityValueInUSD, // Consumo convertido para dólares
+          country: 'US'
         },
         {
           headers: {
@@ -138,9 +219,30 @@ function ResultPage({ data, onBack }) {
             Estoque estimado de carbono na propriedade: {carbonFootprint.carbon_mt} tCO₂
           </Text>
         ) : (
-          <Text style={styles.cardContent}>Erro ao calcular a pegada de carbono.</Text>
+          <Text style={styles.cardContent}>Erro ao calcular a pegada de carbono. É necessário informar o consumo de energia elétrica.</Text>
         )}
       </View>
+      
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Série Temporal (NDVI)</Text>
+        {timeSeries ? (
+          <ScrollView horizontal>
+            <View>
+              {timeSeries.listaSerie.map((valor, index) => (
+                <Text key={index} style={styles.cardContent}>
+                  Data: {timeSeries.listaDatas[index]}, NDVI: {valor.toFixed(4)}
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ) : (
+          <Text style={styles.cardContent}>
+            Não foi possível carregar os dados da série temporal.
+          </Text>
+        )}
+      </View>
+
+
       <Button title="Voltar" onPress={onBack} color="#10A37F" />
     </ScrollView>
   );
@@ -218,8 +320,20 @@ export default function LabPage() {
   }
 
   const handleInputChange = (field, value) => {
-    setForm({ ...form, [field]: value });
+    if (field === 'latitude' || field === 'longetude') {
+      setForm({ ...form, [field]: value }); // Armazena o valor original
+      try {
+        const decimalValue = dmsToDecimal(value); // Converte para decimal
+        setForm({ ...form, [field]: decimalValue.toString() }); // Salva como string decimal
+      } catch (error) {
+        console.error('Erro ao converter coordenada:', error.message);
+      }
+    } else {
+      setForm({ ...form, [field]: value });
+    }
   };
+  
+  
 
   const toggleCheckbox = (field, value) => {
     const updatedArray = form[field].includes(value)
@@ -323,27 +437,28 @@ export default function LabPage() {
         keyboardType="numeric"
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Latitude informada no SICAR"
-        value={form.latitude}
-        onChangeText={(text) => handleInputChange('lat', text)}
-        keyboardType="numeric"
-      />
+    <TextInput
+      style={styles.input}
+      placeholder={`Latitude (ex: 18°10'47,78" S)`}
+      value={form.latitude}
+      onChangeText={(text) => handleInputChange('latitude', text)}
+      keyboardType="numeric"
+    />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Longetude informada no SICAR"
-        value={form.longetude}
-        onChangeText={(text) => handleInputChange('long', text)}
-        keyboardType="numeric"
-      />
+    <TextInput
+      style={styles.input}
+      placeholder={`Longitude (ex: 41°55'24,5" O)`}
+      value={form.longetude}
+      onChangeText={(text) => handleInputChange('longetude', text)}
+      keyboardType="numeric"
+    />
+
 
       <TextInput
         style={styles.input}
         placeholder="Área do imóvel rural que aparece no SICAR"
         value={form.areaRural}
-        onChangeText={(text) => handleInputChange('area', text)}
+        onChangeText={(text) => handleInputChange('areaRural', text)}
         keyboardType="numeric"
       />
 
@@ -541,13 +656,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   text: {
-    color: '#FFF', // Texto branco
+    color: '#FFF',
     fontSize: 16,
-    marginTop: 8, // Espaçamento em cima e embaixo
+    marginTop: 8, 
   },
   link: {
-    color: '#10A37F', // Cor branca para o link
-    textDecorationLine: 'underline', // Sublinhado
-    marginTop: 8, // Espaçamento em cima e embaixo
+    color: '#10A37F', 
+    textDecorationLine: 'underline', 
+    marginTop: 8, 
   },
 });
