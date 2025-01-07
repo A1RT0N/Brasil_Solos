@@ -3,7 +3,6 @@ import { Linking } from 'react-native';
 import firebaseConfig from "../../firebase/config"
 import { initializeApp } from 'firebase/app'
 import { GlobalContext } from '../../contexts/GlobalContext'
-import { consultarCAR } from './carApi'; // API COM CÓDIGO CAR
 import { getFirestore, setDoc, doc, query, where, getDocs,collection } from "firebase/firestore"
 import {
   View,
@@ -17,7 +16,10 @@ import {
   Alert,
 } from 'react-native';
 
+// Código SICAR de exemplo: MG-3132701-36A6FC6FCCCE4B65B57EAA02DFF5A72F
 
+
+// API's do AGRO API
 const consumer_key = 'IQIC7kqNI0DVXl23ejDNsR9fb64a';
 const consumer_secret = '2Btdt7fBq17pWdY_aduE2sofUFQa';
 const token = '3e51ac87-8135-3d7a-b1c5-81fc42578615';
@@ -34,8 +36,8 @@ function ResultPage({ data, onBack }) {
 
   const calculateCarbonFootprint = async () => {
     try {
-      // Supondo uma taxa de câmbio fixa (exemplo: 1 USD = 5.25 BRL)
-      const exchangeRate = 5.25; 
+      // Supondo uma taxa de câmbio fixa (exemplo: 1 USD = 5.5 BRL)
+      const exchangeRate = 5.5; 
   
       // Converte o valor de gasto em reais para dólares
       const electricityValueInUSD = parseFloat(data.gastoLuz) / exchangeRate;
@@ -72,6 +74,9 @@ function ResultPage({ data, onBack }) {
     calculateCarbonFootprint();
   }, []);
 
+
+  // Fórmula usada Cálculo N=(ET−P)×A
+
   const calculateIrrigationDemand = () => {
     const kcValues = {
       Algodão: 0.85,
@@ -88,7 +93,7 @@ function ResultPage({ data, onBack }) {
     let irrigationDemand = 0;
     data.culturas.forEach((cultura) => {
       if (kcValues[cultura]) {
-        irrigationDemand += kcValues[cultura] * 5 * 30; // Cálculo fictício
+        irrigationDemand += kcValues[cultura] * 5 * 30; 
       }
     });
 
@@ -148,10 +153,7 @@ export default function LabPage() {
 
   const [form, setForm] = useState({
     user: globalEmail,
-    cep: '',
-    municipio: '',
     codigoImovel: '',
-    tamanhoPropriedade: '',
     tipoProducao: [],
     culturas: [],
     gastoAgua: '',
@@ -168,11 +170,13 @@ export default function LabPage() {
     produtos: [],
     mudancasClimaticas: [],
     outrosMudancas: '',
-    resultadosLaboratorio: '',
     praticasManejo: [],
     genero: '',
     idade: '',
     perfil: '',
+    latitude: '',
+    longetude: '',
+    areaRural: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -242,12 +246,26 @@ export default function LabPage() {
       .catch(err => console.error("Não foi possível abrir o link", err));
   };
 
+  
+
+  const openLinkConsulta = () => {
+    Linking.openURL('https://www.car.gov.br/#/consultar')
+      .catch(err => console.error("Não foi possível abrir o link", err));
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Preencha os Dados da Propriedade</Text>
 
-      <Text style={styles.title}>Já preencheu?</Text>
+      <Text style={styles.title}>Já preencheu? Se sim:</Text>
+      {/* Espaço invisível entre os botões */}
+      <View style={{ height: 5 }} />
+
       <Button title="Carregar os dados" onPress={recuperarDados} color="#10A37F" />
+
+      {/* Espaço invisível entre os botões */}
+      <View style={{ height: 5 }} />
+
 
 
       <Text style={styles.sectionTitle}>Sobre Você</Text>
@@ -280,41 +298,56 @@ export default function LabPage() {
 
       <Text style={styles.sectionTitle}>Sua Propriedade</Text>
 
+      <Text style={[styles.text, { marginBottom: 10 }]}>
+        Você conhece seu código de propriedade rural (SICAR)? Se não,{' '}
+        <Text style={styles.link} onPress={openLink}>
+          clique aqui.
+        </Text>
+      </Text>
+
+      <View style={[styles.card, { marginBottom: 10 }]}>
+  <Text style={[styles.cardContent, { color: '#FFF' }]}>
+    Com seu código de propriedade em mãos, faça a consulta da "Área do Imóvel Rural" e da "Coordenadas Geográficas do Centróide" para acessar a latitude (Lat) e longitude (Long), que aparecem em "Dados do Imóvel Rural",{' '}
+    <Text style={styles.link} onPress={openLinkConsulta}>
+      clicando nesse link.
+    </Text>
+  </Text>
+</View>
+
+
       <TextInput
         style={styles.input}
-        placeholder="CEP"
-        value={form.cep}
-        onChangeText={(text) => handleInputChange('cep', text)}
-        keyboardType="numeric"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Município"
-        value={form.municipio}
-        onChangeText={(text) => handleInputChange('municipio', text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Código do Imóvel Rural (SICAR)"
+        placeholder="Opcional: Código do Imóvel Rural (SICAR)"
         value={form.codigoImovel}
         onChangeText={(text) => handleInputChange('codigoImovel', text)}
         keyboardType="numeric"
       />
 
-      <Text style={[styles.text, { marginBottom: 10 }]}>
-        Não conhece seu código de imóvel?{' '}
-        <Text style={styles.link} onPress={openLink}>
-          Pesquise aqui.
-        </Text>
-      </Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Latitude informada no SICAR"
+        value={form.latitude}
+        onChangeText={(text) => handleInputChange('lat', text)}
+        keyboardType="numeric"
+      />
 
       <TextInput
         style={styles.input}
-        placeholder="Tamanho da Propriedade (ha)"
-        value={form.tamanhoPropriedade}
-        onChangeText={(text) => handleInputChange('tamanhoPropriedade', text)}
+        placeholder="Longetude informada no SICAR"
+        value={form.longetude}
+        onChangeText={(text) => handleInputChange('long', text)}
         keyboardType="numeric"
       />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Área do imóvel rural que aparece no SICAR"
+        value={form.areaRural}
+        onChangeText={(text) => handleInputChange('area', text)}
+        keyboardType="numeric"
+      />
+
+      
 
       <Text style={styles.sectionTitle}>Tipo de Produção</Text>
       {[
@@ -401,14 +434,6 @@ export default function LabPage() {
       />
 
 
-      <Text style={styles.sectionTitle}>Resultados de Laboratório do Solo</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Parâmetros laboratoriais do solo (digitar)"
-        value={form.resultadosLaboratorio}
-        onChangeText={(text) => handleInputChange('resultadosLaboratorio', text)}
-      />
-
 
       <Text style={styles.sectionTitle}>Práticas de Manejo do Solo</Text>
       {['Adubação Verde', 'Plantio Direto', 'Rotação de Culturas', 'Reflorestamento', 'Outro (digitar)'].map((item) => (
@@ -420,9 +445,21 @@ export default function LabPage() {
       ))}
 
 
+      {/* Espaço invisível entre os botões */}
+      <View style={{ height: 10 }} />
+
+
       <Button title="Salvar Dados" onPress={registrarDados} color="#10A37F" />
 
+      {/* Espaço invisível entre os botões */}
+      <View style={{ height: 10 }} />
+
+
       <Button title="Processar Dados" onPress={processarDados} color="#10A37F" />
+
+      {/* Espaço invisível entre os botões */}
+      <View style={{ height: 10 }} />
+
     </ScrollView>
   );
 }
@@ -509,7 +546,7 @@ const styles = StyleSheet.create({
     marginTop: 8, // Espaçamento em cima e embaixo
   },
   link: {
-    color: '#FFF', // Cor branca para o link
+    color: '#10A37F', // Cor branca para o link
     textDecorationLine: 'underline', // Sublinhado
     marginTop: 8, // Espaçamento em cima e embaixo
   },

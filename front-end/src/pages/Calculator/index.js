@@ -29,7 +29,6 @@ export default function Calculator({ navigation }) {
     { label: 'Leite', value: 'leite' },
     { label: 'Mandioca', value: 'mandioca' },
     { label: 'Milho', value: 'milho' },
-    { label: 'Ovinos', value: 'ovinos' },
     { label: 'Ovos', value: 'ovos' },
     { label: 'Soja', value: 'soja' },
     { label: 'Suíno', value: 'suino' },
