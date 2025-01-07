@@ -38,35 +38,41 @@ export default function Calculator({ navigation }) {
   ];
 
   const handleScrape = async () => {
+    if (!input) {
+      Alert.alert('Erro', 'Por favor, selecione um indicador.');
+      return;
+    }
+
     try {
-      const response = await fetch(`http://localhost:3000/scrape?input=${input}`);
+      // Faz o fetch da página
+      const response = await fetch(`https://www.cepea.esalq.usp.br/br/indicador/${input}.aspx`);
       if (!response.ok) {
-        throw new Error(`Erro: ${response.statusText}`);
+        throw new Error(`Erro ao acessar o site: ${response.statusText}`);
       }
-      const scrapedData = await response.json();
-      setData(scrapedData);
-      Alert.alert('Sucesso', 'Dados extraídos com sucesso');
+      const html = await response.text();
+
+      // Processa o HTML usando DOMParser
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const tabela = doc.querySelector('#imagenet-indicador1');
+
+      if (!tabela) {
+        Alert.alert('Erro', 'Não foi possível encontrar os dados na página.');
+        return;
+      }
+
+      // Extrai os cabeçalhos e linhas da tabela
+      const headers = Array.from(tabela.querySelectorAll('thead th')).map(th => th.textContent.trim());
+      const rows = Array.from(tabela.querySelectorAll('tbody tr')).map(tr => 
+        Array.from(tr.querySelectorAll('td')).map(td => td.textContent.trim())
+      );
+
+      setData({ headers, rows });
+      Alert.alert('Sucesso', 'Dados extraídos com sucesso!');
     } catch (error) {
       Alert.alert('Erro', `Erro ao realizar o scraping: ${error.message}`);
     }
   };
-
-  const getTableHeaders = () => {
-    if (data && data.length > 0) {
-      return Object.keys(data[0]);
-    }
-    return [];
-  };
-
-  const getTableRows = () => {
-    if (data && data.length > 0) {
-      return data.map((item) => Object.values(item));
-    }
-    return [];
-  };
-
-  const tableHead = getTableHeaders();
-  const tableData = getTableRows();
 
   return (
     <View style={styles.container}>
@@ -102,8 +108,8 @@ export default function Calculator({ navigation }) {
       {data && (
         <ScrollView style={styles.tableContainer}>
           <Table borderStyle={{ borderWidth: 1, borderColor: '#1E5F74' }}>
-            <Row data={tableHead} style={styles.head} textStyle={styles.text} />
-            <Rows data={tableData} textStyle={styles.text} />
+            <Row data={data.headers} style={styles.head} textStyle={styles.text} />
+            <Rows data={data.rows} textStyle={styles.text} />
           </Table>
         </ScrollView>
       )}

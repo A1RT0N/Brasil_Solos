@@ -1,54 +1,115 @@
-import {React, useState, useContext} from 'react';
-import { View, StyleSheet, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
-import firebaseConfig from "../../firebase/config"
-import { initializeApp } from 'firebase/app'
-import { GlobalContext } from '../../contexts/GlobalContext'
-import { getFirestore, setDoc, doc, query, where, getDocs,collection } from "firebase/firestore"
-
-// TODO: Eduardo ligar isso com AWS e dados de registro e login
+import React, { useEffect, useState, useContext } from 'react';
+import { View, StyleSheet, Text, ScrollView, ActivityIndicator } from 'react-native';
+import firebaseConfig from "../../firebase/config";
+import { initializeApp } from 'firebase/app';
+import { GlobalContext } from '../../contexts/GlobalContext';
+import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 
 export default function Profile({ navigation }) {
   const { globalEmail } = useContext(GlobalContext);
 
-  const [user, setUser] = useState({
-    id: '',
-    name: '',
-    email: globalEmail
-  });
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const profilePicture = 'https://randomuser.me/api/portraits/lego/1.jpg';
-  
+  useEffect(() => {
+    const fetchData = async () => {
+      const firebaseApp = initializeApp(firebaseConfig);
+      const db = getFirestore(firebaseApp);
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", globalEmail));
+      const querySnapshot = await getDocs(q);
 
-  const recuperarDados = async () => {
+      if (!querySnapshot.empty) {
+        const data = querySnapshot.docs[0].data();
+        setUserData(data);
+      } else {
+        setUserData(null);
+      }
+      setLoading(false);
+    };
 
-    const firebaseApp = initializeApp(firebaseConfig);
-    const db = getFirestore(firebaseApp);
-    const propriedadesRef = collection(db, "users");
-    const q = query(propriedadesRef, where("email", "==", globalEmail));
-    const querySnapshot = await getDocs(q);
+    fetchData();
+  }, [globalEmail]);
 
-    console.log(querySnapshot.docs);
-    querySnapshot.forEach((doc) => {
-      setUser(doc.data());
-    });
-
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#10A37F" />
+        <Text style={styles.loadingText}>Carregando suas informações...</Text>
+      </View>
+    );
   }
 
   return (
-
-
     <ScrollView style={styles.container}>
-    
       <View style={styles.header}>
-      <TouchableOpacity style={styles.button} onPress={recuperarDados}>
-        <Text style={styles.buttonText}>Carregar suas informações</Text>
-      </TouchableOpacity>
-        <Image style={styles.profileImage} source={{ uri: profilePicture }} />
-        <Text style={styles.name}>{user.name}</Text>
-        <Text style={styles.email}>{user.email}</Text>
+        <Text style={styles.title}>Perfil do Usuário</Text>
       </View>
 
-      
+      {userData ? (
+        <View style={styles.infoSection}>
+          <Text style={styles.infoText}>Segue abaixo todas as suas informações até o momento:</Text>
+
+          <Text style={styles.label}>Nome:</Text>
+          <Text style={styles.value}>{userData.name || "Não informado"}</Text>
+
+          <Text style={styles.label}>E-mail:</Text>
+          <Text style={styles.value}>{userData.email || "Não informado"}</Text>
+
+          {userData.gender && (
+            <>
+              <Text style={styles.label}>Gênero:</Text>
+              <Text style={styles.value}>{userData.gender}</Text>
+            </>
+          )}
+
+          {userData.age && (
+            <>
+              <Text style={styles.label}>Idade:</Text>
+              <Text style={styles.value}>{userData.age}</Text>
+            </>
+          )}
+
+          {userData.profile && (
+            <>
+              <Text style={styles.label}>Perfil:</Text>
+              <Text style={styles.value}>{userData.profile}</Text>
+            </>
+          )}
+
+          {userData.cultures && userData.cultures.length > 0 && (
+            <>
+              <Text style={styles.label}>Culturas:</Text>
+              <Text style={styles.value}>{userData.cultures.join(", ")}</Text>
+            </>
+          )}
+
+          {userData.waterConsumption && (
+            <>
+              <Text style={styles.label}>Gasto de Água (R$):</Text>
+              <Text style={styles.value}>{userData.waterConsumption}</Text>
+            </>
+          )}
+
+          {userData.energyConsumption && (
+            <>
+              <Text style={styles.label}>Gasto de Energia (R$):</Text>
+              <Text style={styles.value}>{userData.energyConsumption}</Text>
+            </>
+          )}
+
+          {userData.propertySize && (
+            <>
+              <Text style={styles.label}>Tamanho da Propriedade (ha):</Text>
+              <Text style={styles.value}>{userData.propertySize}</Text>
+            </>
+          )}
+        </View>
+      ) : (
+        <View style={styles.infoSection}>
+          <Text style={styles.infoText}>Nenhuma informação encontrada.</Text>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -65,56 +126,40 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
   },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
-    borderColor: '#10A37F',
-    marginBottom: 10,
-  },
-  name: {
-    fontSize: 22,
+  title: {
+    fontSize: 24,
     color: '#FFF',
     fontWeight: 'bold',
   },
-  email: {
-    fontSize: 16,
-    color: '#AAA',
+  infoSection: {
+    padding: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#343541',
+  },
+  loadingText: {
     marginTop: 5,
-  },
-  sexo: {
+    color: '#FFF',
     fontSize: 16,
-    color: '#AAA',
-    marginTop: 5,
   },
-  section: {
-    margin: 20,
-    backgroundColor: '#444654',
-    padding: 15,
-    borderRadius: 15,
+  infoText: {
+    fontSize: 16,
+    color: '#FFF',
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  sectionTitle: {
+  label: {
     fontSize: 18,
     color: '#10A37F',
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginTop: 10,
   },
-  sectionContent: {
+  value: {
     fontSize: 16,
     color: '#FFF',
-    lineHeight: 22,
-  },
-  button: {
-    backgroundColor: '#10A37F',
-    padding: 15,
-    margin: 20,
-    borderRadius: 15,
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontSize: 18,
-    color: '#FFF',
-    fontWeight: 'bold',
+    marginTop: 5,
   },
 });

@@ -1,8 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Linking } from 'react-native';
 import firebaseConfig from "../../firebase/config"
 import { initializeApp } from 'firebase/app'
 import { GlobalContext } from '../../contexts/GlobalContext'
+import { consultarCAR } from './carApi'; // API COM CÓDIGO CAR
 import { getFirestore, setDoc, doc, query, where, getDocs,collection } from "firebase/firestore"
 import {
   View,
@@ -13,43 +14,102 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 
-import {getPolygonByCodImovelAndState} from './shapefile';
 
 const consumer_key = 'IQIC7kqNI0DVXl23ejDNsR9fb64a';
 const consumer_secret = '2Btdt7fBq17pWdY_aduE2sofUFQa';
 const token = '3e51ac87-8135-3d7a-b1c5-81fc42578615';
 
+import axios from 'axios';
+
+
+const API_KEY_carbono = 'RdDP3Si90TKiPcIkWBBbQ';
+const BASE_URL_carbono = 'https://www.carboninterface.com/api/v1/estimates';
 
 function ResultPage({ data, onBack }) {
-  // const calculateIrrigationDemand = () => {
-  //   const kcValues = {
-  //     Algodão: 0.85,
-  //     Arroz: 1.2,
-  //     Café: 0.8,
-  //     Cana: 1.15,
-  //     Feijão: 1.0,
-  //     Mandioca: 0.65,
-  //     Milho: 1.15,
-  //     Soja: 0.9,
-  //     Trigo: 1.15,
-  //   };
+  const [carbonFootprint, setCarbonFootprint] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  //   let irrigationDemand = 0;
-  //   data.culturas.forEach((cultura) => {
-  //     if (kcValues[cultura]) {
-  //       irrigationDemand += kcValues[cultura] * 5 * 30; // Cálculo fictício
-  //     }
-  //   });
-
-  //   return irrigationDemand.toFixed(2);
-  // };
-
+  const calculateCarbonFootprint = async () => {
+    try {
+      // Supondo uma taxa de câmbio fixa (exemplo: 1 USD = 5.25 BRL)
+      const exchangeRate = 5.25; 
   
+      // Converte o valor de gasto em reais para dólares
+      const electricityValueInUSD = parseFloat(data.gastoLuz) / exchangeRate;
+  
+      const response = await axios.post(
+        BASE_URL_carbono,
+        {
+          type: 'electricity',
+          electricity_unit: 'kwh',
+          electricity_value: electricityValueInUSD, // Consumo convertido para dólares
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${API_KEY_carbono}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      if (response.data && response.data.data) {
+        setCarbonFootprint(response.data.data.attributes);
+      } else {
+        throw new Error('Resposta inesperada da API');
+      }
+    } catch (error) {
+      console.error('Erro ao calcular a pegada de carbono:', error.response?.data || error.message);
+      Alert.alert('Erro', 'Não foi possível calcular a pegada de carbono. Verifique os dados inseridos.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // const waterSecurityIndex = Math.random() > 0.5 ? 'Adequado' : 'Crítico';
-  // const carbonFootprint = data.tamanhoPropriedade * 10; // Exemplo de cálculo baseado no tamanho da propriedade
+  useEffect(() => {
+    calculateCarbonFootprint();
+  }, []);
+
+  const calculateIrrigationDemand = () => {
+    const kcValues = {
+      Algodão: 0.85,
+      Arroz: 1.2,
+      Café: 0.8,
+      Cana: 1.15,
+      Feijão: 1.0,
+      Mandioca: 0.65,
+      Milho: 1.15,
+      Soja: 0.9,
+      Trigo: 1.15,
+    };
+
+    let irrigationDemand = 0;
+    data.culturas.forEach((cultura) => {
+      if (kcValues[cultura]) {
+        irrigationDemand += kcValues[cultura] * 5 * 30; // Cálculo fictício
+      }
+    });
+
+    return irrigationDemand.toFixed(2);
+  };
+
+  const calculateWaterSecurityIndex = () => {
+    const gastoAgua = parseFloat(data.gastoAgua || 0);
+    if (gastoAgua > 500) return 'Crítico';
+    if (gastoAgua > 200) return 'Moderado';
+    return 'Adequado';
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#10A37F" />
+        <Text style={styles.loadingText}>Calculando pegada de carbono...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -63,24 +123,28 @@ function ResultPage({ data, onBack }) {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Índice de Segurança Hídrica</Text>
         <Text style={styles.cardContent}>
-          Índice estimado para sua região: {waterSecurityIndex}
+          Índice estimado para sua região: {calculateWaterSecurityIndex()}
         </Text>
       </View>
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Pegada de Carbono</Text>
-        <Text style={styles.cardContent}>
-          Estoque estimado de carbono na propriedade: {carbonFootprint} tCO₂
-        </Text>
+        {carbonFootprint ? (
+          <Text style={styles.cardContent}>
+            Estoque estimado de carbono na propriedade: {carbonFootprint.carbon_mt} tCO₂
+          </Text>
+        ) : (
+          <Text style={styles.cardContent}>Erro ao calcular a pegada de carbono.</Text>
+        )}
       </View>
       <Button title="Voltar" onPress={onBack} color="#10A37F" />
     </ScrollView>
   );
 }
 
+
 export default function LabPage() {
 
   const { globalEmail } = useContext(GlobalContext);
-  console.log(globalEmail)
 
   const [form, setForm] = useState({
     user: globalEmail,
@@ -143,7 +207,6 @@ export default function LabPage() {
     const q = query(propriedadesRef, where("user", "==", globalEmail));
     const querySnapshot = await getDocs(q);
 
-    console.log(querySnapshot.docs);
     querySnapshot.forEach((doc) => {
       setForm(doc.data());
     });
@@ -316,7 +379,7 @@ export default function LabPage() {
       ))}
       <TextInput
         style={styles.input}
-        placeholder="Gasto mensal com energia (R$)"
+        placeholder="Gasto mensal com energia elétrica (R$)"
         value={form.gastoLuz}
         onChangeText={(text) => handleInputChange('gastoLuz', text)}
         keyboardType="numeric"
