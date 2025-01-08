@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Linking } from 'react-native';
-import firebaseConfig from "../../firebase/config"
-import { initializeApp } from 'firebase/app'
-import { GlobalContext } from '../../contexts/GlobalContext'
-import { getFirestore, setDoc, doc, query, where, getDocs,collection } from "firebase/firestore"
+import firebaseConfig from "../../firebase/config";
+import { initializeApp } from 'firebase/app';
+import { GlobalContext } from '../../contexts/GlobalContext';
+import { getFirestore, setDoc, doc, query, where, getDocs, collection } from "firebase/firestore";
 import {
   View,
   StyleSheet,
@@ -15,6 +15,13 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+
+import { LineChart } from 'react-native-chart-kit';
+
+// Agora, importe o climAPI usando ES Modules:
+import fetchWeatherData from './climAPI';
+
+
 
 // Código SICAR de exemplo: MG-3132701-36A6FC6FCCCE4B65B57EAA02DFF5A72F
 
@@ -66,6 +73,69 @@ function ResultPage({ data, onBack }) {
   const [timeSeries, setTimeSeries] = useState(null);
 
 
+  const [forecastData, setForecastData] = useState(null);
+  const [loadingForecast, setLoadingForecast] = useState(true);
+
+  // Função para buscar a previsão do tempo
+  const fetchForecast = async (latitude, longitude) => {
+    const API_KEY = '2b4df23c7f293b59d8d121952bc7c442'; // Substitua pela sua chave da API OpenWeather
+    const BASE_URL = 'https://api.openweathermap.org/data/2.5/forecast';
+    try {
+      const response = await axios.get(BASE_URL, {
+        params: {
+          lat: latitude,
+          lon: longitude,
+          appid: API_KEY,
+          units: 'metric', // Temperatura em Celsius
+        },
+      });
+      setForecastData(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar previsão do tempo:', error.message);
+    } finally {
+      setLoadingForecast(false);
+    }
+  };
+
+  useEffect(() => {
+    if (data.latitude && data.longitude) {
+      fetchForecast(data.latitude, data.longitude);
+    }
+  }, [data.latitude, data.longitude]);
+
+  // Função para formatar os dados da previsão
+  const formatForecastData = (forecast) => {
+    const dailyForecasts = {};
+    forecast.forEach((item) => {
+      const date = item.dt_txt.split(' ')[0]; // Extrai apenas a data
+      if (!dailyForecasts[date]) {
+        dailyForecasts[date] = [];
+      }
+      dailyForecasts[date].push(item);
+    });
+
+    // Calcula os dados representativos por dia
+    return Object.entries(dailyForecasts).map(([date, values]) => {
+      const avgTemp = (
+        values.reduce((sum, val) => sum + val.main.temp, 0) / values.length
+      ).toFixed(1);
+      const avgHumidity = (
+        values.reduce((sum, val) => sum + val.main.humidity, 0) / values.length
+      ).toFixed(1);
+      const totalPrecipitation = values
+        .reduce((sum, val) => sum + (val.rain?.['3h'] || 0), 0)
+        .toFixed(1);
+
+      return {
+        date,
+        avgTemp,
+        avgHumidity,
+        totalPrecipitation,
+      };
+    });
+  };
+
+
 
   const getTimeSeries = async (latitude, longitude) => {
     const API_URL = 'https://api.cnptia.embrapa.br/satveg/v2/series'; 
@@ -105,13 +175,17 @@ function ResultPage({ data, onBack }) {
 
   useEffect(() => {
     const fetchTimeSeries = async () => {
-      const timeSeriesData = await getTimeSeries(data.latitude, data.longetude);
+      const timeSeriesData = await getTimeSeries(data.latitude, data.longitude);
       setTimeSeries(timeSeriesData);
     };
   
     fetchTimeSeries();
     calculateCarbonFootprint();
   }, []);
+
+
+  
+  
 
 
   const calculateCarbonFootprint = async () => {
@@ -197,6 +271,38 @@ function ResultPage({ data, onBack }) {
     );
   }
 
+    const filterDataByYear = (dates, values) => {
+      const groupedByYear = {};
+
+      // Agrupa os valores por ano
+      dates.forEach((date, index) => {
+        const year = new Date(date).getFullYear();
+        if (!groupedByYear[year]) {
+          groupedByYear[year] = [];
+        }
+        groupedByYear[year].push({ date, value: values[index] });
+      });
+
+      // Reduz cada grupo para exatamente 5 pontos por ano
+      const filteredDates = [];
+      const filteredValues = [];
+      Object.keys(groupedByYear).forEach((year) => {
+        const points = groupedByYear[year];
+        const step = Math.max(1, Math.floor(points.length / 5)); // Escolhe 5 pontos uniformemente
+
+        const selectedPoints = points.filter((_, index) => index % step === 0).slice(0, 5); // Garante no máximo 5
+        selectedPoints.forEach((point) => {
+          filteredDates.push(point.date);
+          filteredValues.push(point.value);
+        });
+      });
+
+      return { filteredDates, filteredValues };
+    };
+
+
+
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Resultados</Text>
@@ -223,24 +329,99 @@ function ResultPage({ data, onBack }) {
         )}
       </View>
       
+    
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Série Temporal (NDVI)</Text>
-        {timeSeries ? (
-          <ScrollView horizontal>
-            <View>
-              {timeSeries.listaSerie.map((valor, index) => (
-                <Text key={index} style={styles.cardContent}>
-                  Data: {timeSeries.listaDatas[index]}, NDVI: {valor.toFixed(4)}
-                </Text>
-              ))}
+      <Text style={styles.cardTitle}>Série Temporal NDVI da Embrapa</Text>
+      <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
+      O NDVI (Índice de Vegetação por Diferença Normalizada) é uma ferramenta para monitorar a saúde da vegetação e entender seu papel na sustentabilidade. Calculado a partir de imagens de satélite, esse índice varia de -1 a 1 e reflete a "vitalidade" da vegetação: valores mais altos indicam plantas saudáveis e bem desenvolvidas, enquanto valores baixos podem sugerir áreas degradadas, solo exposto ou vegetação estressada. 
+      O NDVI permite identificar áreas com vegetação saudável ou degradada, apoiando suas práticas agrícolas.
+      Esse índice reflete como mudanças climáticas, como secas ou enchentes, impactam a vegetação, ajudando a planejar futuras ações. Por meio do apoio das ferramentas da Embrapa, este gráfico mostra a variação do índice NDVI da sua propriedade ao longo dos anos, com 5 valores representativos por ano. Atenção: por ser um serviço pago, pode ser que ele não esteja disponível.
+      </Text>
+      {timeSeries ? (
+        (() => {
+          const { filteredDates, filteredValues } = filterDataByYear(
+            timeSeries.listaDatas,
+            timeSeries.listaSerie
+          );
+
+          const chartWidth = filteredDates.length * 80; // Largura dinâmica baseada na quantidade de dados
+
+          return (
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+              <LineChart
+                data={{
+                  labels: filteredDates.map((date) => new Date(date).getFullYear().toString()), // Rótulos no eixo X
+                  datasets: [
+                    {
+                      data: filteredValues, // Valores filtrados
+                    },
+                  ],
+                }}
+                width={chartWidth} // Largura do gráfico ajustada ao número de pontos
+                height={220} // Altura do gráfico
+                yAxisSuffix=""
+                yAxisInterval={1} // Intervalo entre os valores do eixo Y
+                chartConfig={{
+                  backgroundColor: '#343541',
+                  backgroundGradientFrom: '#1E1E2C',
+                  backgroundGradientTo: '#343541',
+                  decimalPlaces: 4, // Número de casas decimais nos valores
+                  color: (opacity = 1) => `rgba(16, 163, 127, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                  propsForDots: {
+                    r: '5',
+                    strokeWidth: '2',
+                    stroke: '#1E5F74',
+                  },
+                }}
+                bezier={false} // Gráfico com linhas retas entre os pontos
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 16,
+                }}
+              />
+            </ScrollView>
+          );
+        })()
+      ) : (
+        <Text style={styles.cardContent}>
+          Não foi possível carregar os dados da série temporal.
+        </Text>
+      )}
+    </View>
+
+
+    {/* <View style={styles.card}>
+        <Text style={styles.cardTitle}>Previsão do Tempo (Próximos 5 Dias)</Text>
+        {loadingForecast ? (
+          <ActivityIndicator size="large" color="#10A37F" />
+        ) : forecastData ? (
+          formatForecastData(forecastData.list).slice(0, 5).map((day, index) => (
+            <View key={index} style={styles.forecastItem}>
+              <Text style={styles.cardContent}>📅 Data: {day.date}</Text>
+              <Text style={styles.cardContent}>
+                🌡️ Temperatura Média: {day.avgTemp}°C
+              </Text>
+              <Text style={styles.cardContent}>
+                💧 Umidade Média: {day.avgHumidity}%
+              </Text>
+              <Text style={styles.cardContent}>
+                🌧️ Precipitação Total: {day.totalPrecipitation} mm
+              </Text>
             </View>
-          </ScrollView>
+          ))
         ) : (
           <Text style={styles.cardContent}>
-            Não foi possível carregar os dados da série temporal.
+            Não foi possível carregar os dados da previsão.
           </Text>
         )}
-      </View>
+      </View> */}
+
+
+
 
 
       <Button title="Voltar" onPress={onBack} color="#10A37F" />
@@ -270,15 +451,14 @@ export default function LabPage() {
     mudancasClimaticas: [],
     outrosMudancas: '',
     produtos: [],
-    mudancasClimaticas: [],
-    outrosMudancas: '',
     praticasManejo: [],
     genero: '',
     idade: '',
     perfil: '',
     latitude: '',
-    longetude: '',
-    areaRural: ''
+    longitude: '',
+    areaRural: '',
+    weather: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -287,6 +467,9 @@ export default function LabPage() {
 
 
   const [temPropriedade, setTemPropriedade] = useState(false);
+
+
+  
 
   const processarDados = () => {
     setLoading(true);
@@ -320,7 +503,7 @@ export default function LabPage() {
   }
 
   const handleInputChange = (field, value) => {
-    if (field === 'latitude' || field === 'longetude') {
+    if (field === 'latitude' || field === 'longitude') {
       setForm({ ...form, [field]: value }); // Armazena o valor original
       try {
         const decimalValue = dmsToDecimal(value); // Converte para decimal
@@ -439,7 +622,7 @@ export default function LabPage() {
 
     <TextInput
       style={styles.input}
-      placeholder={`Latitude (ex: 18°10'47,78" S)`}
+      placeholder={`Obrigatório: Latitude (ex: 18°10'47,78" S)`}
       value={form.latitude}
       onChangeText={(text) => handleInputChange('latitude', text)}
       keyboardType="numeric"
@@ -447,16 +630,16 @@ export default function LabPage() {
 
     <TextInput
       style={styles.input}
-      placeholder={`Longitude (ex: 41°55'24,5" O)`}
-      value={form.longetude}
-      onChangeText={(text) => handleInputChange('longetude', text)}
+      placeholder={`Obrigatório: Longitude (ex: 41°55'24,5" O)`}
+      value={form.longitude}
+      onChangeText={(text) => handleInputChange('longitude', text)}
       keyboardType="numeric"
     />
 
 
       <TextInput
         style={styles.input}
-        placeholder="Área do imóvel rural que aparece no SICAR"
+        placeholder="Obrigatório: Área do imóvel rural que aparece no SICAR"
         value={form.areaRural}
         onChangeText={(text) => handleInputChange('areaRural', text)}
         keyboardType="numeric"
@@ -666,3 +849,43 @@ const styles = StyleSheet.create({
     marginTop: 8, 
   },
 });
+
+
+
+
+// <View style={styles.card}>
+// <Text style={styles.cardTitle}>Clima de Hoje na sua propriedade</Text>
+// {data.weather ? (
+//   <View style={{ marginBottom: 10 }}>
+//     <Text style={styles.cardContent}>📅 Data: {data.weather.time}</Text>
+//     <Text style={styles.cardContent}>
+//       🌡️ Temperatura Máxima: {data.weather.temperature2mMax}°C
+//     </Text>
+//     <Text style={styles.cardContent}>
+//       🌡️ Temperatura Mínima: {data.weather.temperature2mMin}°C
+//     </Text>
+//     <Text style={styles.cardContent}>
+//       🌞 Índice UV Máximo: {data.weather.uvIndexMax}
+//     </Text>
+//     <Text style={styles.cardContent}>
+//       🌧️ Precipitação (mm): {data.weather.rainSum}
+//     </Text>
+//     <Text style={styles.cardContent}>
+//       ⏱️ Horas de Precipitação: {data.weather.precipitationHours}
+//     </Text>
+//     <Text style={styles.cardContent}>
+//       💨 Velocidade Máxima do Vento: {data.weather.windSpeed10mMax} km/h
+//     </Text>
+//     <Text style={styles.cardContent}>
+//       🧭 Direção Dominante do Vento: {data.weather.windDirection10mDominant}°
+//     </Text>
+//     <Text style={styles.cardContent}>
+//       🌾 Evapotranspiração: {data.weather.et0FaoEvapotranspiration} mm
+//     </Text>
+//   </View>
+// ) : (
+//   <Text style={styles.cardContent}>
+//     ❌ Não foi possível obter os dados climáticos.
+//   </Text>
+// )}
+// </View>
