@@ -617,7 +617,7 @@ export default function LabPage() {
 
       <TextInput
         style={styles.input}
-        placeholder="Opcional: Código do Imóvel Rural (SICAR)"
+        placeholder="Código do Imóvel Rural (SICAR)"
         value={form.codigoImovel}
         onChangeText={(text) => handleInputChange('codigoImovel', text)}
         keyboardType="numeric"

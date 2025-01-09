@@ -1,31 +1,60 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, StyleSheet, Text, ScrollView, ActivityIndicator } from 'react-native';
-import firebaseConfig from "../../firebase/config";
 import { initializeApp } from 'firebase/app';
+import firebaseConfig from "../../firebase/config";
 import { GlobalContext } from '../../contexts/GlobalContext';
-import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  collection,
+  query,
+  where,
+  getDoc,
+  getDocs
+} from "firebase/firestore";
 
 export default function Profile({ navigation }) {
   const { globalEmail } = useContext(GlobalContext);
 
   const [userData, setUserData] = useState(null);
+  const [userData2, setUserData2] = useState(null); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const firebaseApp = initializeApp(firebaseConfig);
-      const db = getFirestore(firebaseApp);
-      const usersRef = collection(db, "users");
-      const q = query(usersRef, where("email", "==", globalEmail));
-      const querySnapshot = await getDocs(q);
+      try {
+        const firebaseApp = initializeApp(firebaseConfig);
+        const db = getFirestore(firebaseApp);
 
-      if (!querySnapshot.empty) {
-        const data = querySnapshot.docs[0].data();
-        setUserData(data);
-      } else {
-        setUserData(null);
+        // 1) Busca na coleção "users"
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("email", "==", globalEmail));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          // Pegue o primeiro doc que corresponde ao e-mail
+          const userDocData = querySnapshot.docs[0].data();
+          setUserData(userDocData);
+        } else {
+          setUserData(null);
+        }
+
+        // 2) Busca na coleção "propriedades"
+        //    Aqui assumimos que o ID do documento é exatamente globalEmail (como mostrado no print)
+        const propDocRef = doc(db, "propriedades", globalEmail);
+        const propSnapshot = await getDoc(propDocRef);
+
+        if (propSnapshot.exists()) {
+          setUserData2(propSnapshot.data());
+        } else {
+          setUserData2(null);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchData();
@@ -46,9 +75,19 @@ export default function Profile({ navigation }) {
         <Text style={styles.title}>Perfil do Usuário</Text>
       </View>
 
-      {userData ? (
+      {/* Se não encontrou NADA em ambas as coleções */}
+      {!userData && !userData2 && (
         <View style={styles.infoSection}>
-          <Text style={styles.infoText}>Segue abaixo todas as suas informações até o momento:</Text>
+          <Text style={styles.infoText}>Nenhuma informação encontrada.</Text>
+        </View>
+      )}
+
+      {/* Se encontrou algum dado na coleção "users" */}
+      {userData && (
+        <View style={styles.infoSection}>
+          <Text style={styles.infoText}>
+            Segue abaixo todas as suas informações do perfil:
+          </Text>
 
           <Text style={styles.label}>Nome:</Text>
           <Text style={styles.value}>{userData.name || "Não informado"}</Text>
@@ -76,38 +115,82 @@ export default function Profile({ navigation }) {
               <Text style={styles.value}>{userData.profile}</Text>
             </>
           )}
+        </View>
+      )}
 
-          {userData.cultures && userData.cultures.length > 0 && (
+      {/* Se encontrou dados na coleção "propriedades" */}
+      {userData2 && (
+        <View style={styles.infoSection}>
+          <Text style={styles.infoText}>
+            Segue abaixo as informações de sua propriedade:
+          </Text>
+
+          {/* Exemplo de como renderizar alguns campos do print que você enviou */}
+          <Text style={styles.label}>Água o ano inteiro?</Text>
+          <Text style={styles.value}>
+            {userData2.aguaAnoInteiro ? "Sim" : "Não"}
+          </Text>
+
+          <Text style={styles.label}>Área Rural (ha):</Text>
+          <Text style={styles.value}>{userData2.areaRural || "Não informado"}</Text>
+
+          <Text style={styles.label}>Código do Imóvel:</Text>
+          <Text style={styles.value}>{userData2.codigoImovel || "Não informado"}</Text>
+
+          {/* Culturas (array) */}
+          {userData2.culturas && userData2.culturas.length > 0 && (
             <>
               <Text style={styles.label}>Culturas:</Text>
-              <Text style={styles.value}>{userData.cultures.join(", ")}</Text>
+              <Text style={styles.value}>{userData2.culturas.join(", ")}</Text>
             </>
           )}
 
-          {userData.waterConsumption && (
+          {/* Fonte de Água (array) */}
+          {userData2.fonteAgua && userData2.fonteAgua.length > 0 && (
             <>
-              <Text style={styles.label}>Gasto de Água (R$):</Text>
-              <Text style={styles.value}>{userData.waterConsumption}</Text>
+              <Text style={styles.label}>Fonte de Água:</Text>
+              <Text style={styles.value}>{userData2.fonteAgua.join(", ")}</Text>
             </>
           )}
 
-          {userData.energyConsumption && (
+          {/* Fonte de Energia (array) */}
+          {userData2.fonteEnergia && userData2.fonteEnergia.length > 0 && (
             <>
-              <Text style={styles.label}>Gasto de Energia (R$):</Text>
-              <Text style={styles.value}>{userData.energyConsumption}</Text>
+              <Text style={styles.label}>Fonte de Energia:</Text>
+              <Text style={styles.value}>{userData2.fonteEnergia.join(", ")}</Text>
             </>
           )}
 
-          {userData.propertySize && (
+          {/* Gastos */}
+          <Text style={styles.label}>Gasto de Água (R$):</Text>
+          <Text style={styles.value}>{userData2.gastoAgua || "Não informado"}</Text>
+
+          <Text style={styles.label}>Gasto de Luz (R$):</Text>
+          <Text style={styles.value}>{userData2.gastoLuz || "Não informado"}</Text>
+
+          <Text style={styles.label}>Gasto de Combustível (R$):</Text>
+          <Text style={styles.value}>{userData2.gastoCombustivel || "Não informado"}</Text>
+
+          {/* Gênero e idade, caso também estejam em 'propriedades' */}
+          {userData2.genero && (
             <>
-              <Text style={styles.label}>Tamanho da Propriedade (ha):</Text>
-              <Text style={styles.value}>{userData.propertySize}</Text>
+              <Text style={styles.label}>Gênero:</Text>
+              <Text style={styles.value}>{userData2.genero}</Text>
             </>
           )}
-        </View>
-      ) : (
-        <View style={styles.infoSection}>
-          <Text style={styles.infoText}>Nenhuma informação encontrada.</Text>
+
+          {userData2.idade && (
+            <>
+              <Text style={styles.label}>Idade:</Text>
+              <Text style={styles.value}>{userData2.idade}</Text>
+            </>
+          )}
+
+          {/* Irrigação (boolean) */}
+          <Text style={styles.label}>Possui irrigação?</Text>
+          <Text style={styles.value}>
+            {userData2.irrigacao ? "Sim" : "Não"}
+          </Text>
         </View>
       )}
     </ScrollView>

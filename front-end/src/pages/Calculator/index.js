@@ -102,7 +102,7 @@ export default function Calculator({ navigation }) {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#343541" />
       <Card containerStyle={styles.card}>
-        <Card.Title style={styles.cardTitle}>Busca de Indicadores</Card.Title>
+        <Card.Title style={styles.cardTitle}>Busca de Indicadores ESALQ</Card.Title>
         <Card.Divider />
         <Text style={styles.label}>Escolha o indicador:</Text>
         <RNPickerSelect
@@ -135,6 +135,7 @@ export default function Calculator({ navigation }) {
             <Row data={data.headers} style={styles.head} textStyle={styles.text} />
             <Rows data={data.rows} textStyle={styles.text} />
           </Table>
+          <View style={{ height: 30 }} />
         </ScrollView>
       )}
     </View>
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   head: {
-    height: 40,
+    height: 60,
     backgroundColor: '#1E5F74',
   },
   text: {
