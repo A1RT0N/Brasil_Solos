@@ -73,11 +73,12 @@ function ResultPage({ data, onBack }) {
   const [loadingOpenMeteo, setLoadingOpenMeteo] = useState(true);
   // =====================================
 
-  // Função para buscar dados de clima na Open-Meteo
-  const fetchOpenMeteo = async (latitude, longitude) => {
+   // Função para buscar dados de clima na Open-Meteo
+   const fetchOpenMeteo = async (latitude, longitude) => {
     try {
       setLoadingOpenMeteo(true);
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relativehumidity_2m,precipitation,soil_moisture_1_3cm,windspeed_10m`;
+      // Incluímos os novos parâmetros: soil_temperature_18cm, cloudcover, et0_fao_evapotranspiration
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relativehumidity_2m,precipitation,soil_moisture_1_3cm,windspeed_10m,soil_temperature_18cm,cloudcover,et0_fao_evapotranspiration`;
       const response = await axios.get(url);
       setOpenMeteoData(response.data);
     } catch (error) {
@@ -280,7 +281,9 @@ function ResultPage({ data, onBack }) {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Série Temporal NDVI da Embrapa</Text>
         <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
-          O NDVI (Índice de Vegetação por Diferença Normalizada) é uma ferramenta para monitorar a saúde da vegetação...
+        O NDVI (Índice de Vegetação por Diferença Normalizada) é uma ferramenta para monitorar a saúde da vegetação e entender seu papel na sustentabilidade. Calculado a partir de imagens de satélite, esse índice varia de -1 a 1 e reflete a "vitalidade" da vegetação: valores mais altos indicam plantas saudáveis e bem desenvolvidas, enquanto valores baixos podem sugerir áreas degradadas, solo exposto ou vegetação estressada. 
+      O NDVI permite identificar áreas com vegetação saudável ou degradada, apoiando suas práticas agrícolas.
+      Esse índice reflete como mudanças climáticas, como secas ou enchentes, impactam a vegetação, ajudando a planejar futuras ações. Por meio do apoio das ferramentas da Embrapa, este gráfico mostra a variação do índice NDVI da sua propriedade ao longo dos anos, com 5 valores representativos por ano. Atenção: por ser um serviço pago, pode ser que ele não esteja disponível.
         </Text>
         {timeSeries ? (
           (() => {
@@ -338,27 +341,71 @@ function ResultPage({ data, onBack }) {
         )}
       </View>
 
-      {/* =================== NOVO CARD: DADOS DA OPEN-METEO =================== */}
+      {/* =================== CARD: DADOS DA OPEN-METEO =================== */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Condições Climáticas da sua propriedade</Text>
+        <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
+          Dados em tempo real das condições climáticas da latitude e longitude informadas por você no formulário anterior:
+        </Text>
+
         {loadingOpenMeteo ? (
           <Text style={styles.cardContent}>Carregando dados climáticos...</Text>
         ) : openMeteoData && openMeteoData.hourly ? (
           <View>
             <Text style={styles.cardContent}>
-              🌡️ Temperatura: {openMeteoData.hourly.temperature_2m ? openMeteoData.hourly.temperature_2m[0] : '--'} °C
+              🌡️ Temperatura (2 m):{' '}
+              {openMeteoData.hourly.temperature_2m
+                ? openMeteoData.hourly.temperature_2m[0]
+                : '--'} °C
             </Text>
+
             <Text style={styles.cardContent}>
-              💧 Umidade do Ar: {openMeteoData.hourly.relativehumidity_2m ? openMeteoData.hourly.relativehumidity_2m[0] : '--'}%
+              💧 Umidade do Ar (2 m):{' '}
+              {openMeteoData.hourly.relativehumidity_2m
+                ? openMeteoData.hourly.relativehumidity_2m[0]
+                : '--'}%
             </Text>
+
             <Text style={styles.cardContent}>
-              ☔ Precipitação: {openMeteoData.hourly.precipitation ? openMeteoData.hourly.precipitation[0] : '--'} mm
+              ☔ Precipitação: {openMeteoData.hourly.precipitation
+                ? openMeteoData.hourly.precipitation[0]
+                : '--'} mm
             </Text>
+
             <Text style={styles.cardContent}>
-              🌱 Umidade do Solo (1 a 3cm): {openMeteoData.hourly.soil_moisture_1_3cm ? openMeteoData.hourly.soil_moisture_1_3cm[0] : '--'} m³/m³
+              🌱 Umidade do Solo (1 a 3 cm):{' '}
+              {openMeteoData.hourly.soil_moisture_1_3cm
+                ? openMeteoData.hourly.soil_moisture_1_3cm[0]
+                : '--'} m³/m³
             </Text>
+
             <Text style={styles.cardContent}>
-              💨 Velocidade do Vento: {openMeteoData.hourly.windspeed_10m ? openMeteoData.hourly.windspeed_10m[0] : '--'} km/h
+              💨 Velocidade do Vento (10 m):{' '}
+              {openMeteoData.hourly.windspeed_10m
+                ? openMeteoData.hourly.windspeed_10m[0]
+                : '--'} km/h
+            </Text>
+
+            {/* Novos dados solicitados */}
+            <Text style={styles.cardContent}>
+              💦 ET₀ (Evapotranspiração de referência):{' '}
+              {openMeteoData.hourly.et0_fao_evapotranspiration
+                ? openMeteoData.hourly.et0_fao_evapotranspiration[0]
+                : '--'} mm
+            </Text>
+
+            <Text style={styles.cardContent}>
+              ☁️ Cobertura de Nuvens Total: {' '}
+              {openMeteoData.hourly.cloudcover
+                ? openMeteoData.hourly.cloudcover[0]
+                : '--'}%
+            </Text>
+
+            <Text style={styles.cardContent}>
+              🌡️ Temperatura do Solo (18 cm):{' '}
+              {openMeteoData.hourly.soil_temperature_18cm
+                ? openMeteoData.hourly.soil_temperature_18cm[0]
+                : '--'} °C
             </Text>
           </View>
         ) : (
@@ -368,6 +415,9 @@ function ResultPage({ data, onBack }) {
         )}
       </View>
       {/* ====================================================== */}
+
+
+
       <View style={{ height: 10 }} />
 
 
