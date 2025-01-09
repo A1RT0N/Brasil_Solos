@@ -17,10 +17,7 @@ import {
 } from 'react-native';
 
 import { LineChart } from 'react-native-chart-kit';
-
-// Agora, importe o climAPI usando ES Modules:
-import fetchWeatherData from './climAPI';
-
+import axios from 'axios';
 
 
 // Código SICAR de exemplo: MG-3132701-36A6FC6FCCCE4B65B57EAA02DFF5A72F
@@ -34,10 +31,9 @@ import fetchWeatherData from './climAPI';
 
 
 // API's do AGRO API
-const consumer_key = 'IQIC7kqNI0DVXl23ejDNsR9fb64a';
-const consumer_secret = '2Btdt7fBq17pWdY_aduE2sofUFQa';
+// const consumer_key = 'IQIC7kqNI0DVXl23ejDNsR9fb64a';
+// const consumer_secret = '2Btdt7fBq17pWdY_aduE2sofUFQa';
 
-import axios from 'axios';
 
 
 const API_KEY_carbono = 'RdDP3Si90TKiPcIkWBBbQ';
@@ -72,70 +68,32 @@ function ResultPage({ data, onBack }) {
   const [loading, setLoading] = useState(true);
   const [timeSeries, setTimeSeries] = useState(null);
 
+  // ==== Adicionados para Open-Meteo ====
+  const [openMeteoData, setOpenMeteoData] = useState(null);
+  const [loadingOpenMeteo, setLoadingOpenMeteo] = useState(true);
+  // =====================================
 
-  const [forecastData, setForecastData] = useState(null);
-  const [loadingForecast, setLoadingForecast] = useState(true);
-
-  // Função para buscar a previsão do tempo
-  const fetchForecast = async (latitude, longitude) => {
-    const API_KEY = '2b4df23c7f293b59d8d121952bc7c442'; // Substitua pela sua chave da API OpenWeather
-    const BASE_URL = 'https://api.openweathermap.org/data/2.5/forecast';
+  // Função para buscar dados de clima na Open-Meteo
+  const fetchOpenMeteo = async (latitude, longitude) => {
     try {
-      const response = await axios.get(BASE_URL, {
-        params: {
-          lat: latitude,
-          lon: longitude,
-          appid: API_KEY,
-          units: 'metric', // Temperatura em Celsius
-        },
-      });
-      setForecastData(response.data);
+      setLoadingOpenMeteo(true);
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relativehumidity_2m,precipitation,soil_moisture_1_3cm,windspeed_10m`;
+      const response = await axios.get(url);
+      setOpenMeteoData(response.data);
     } catch (error) {
-      console.error('Erro ao buscar previsão do tempo:', error.message);
+      console.error('Erro ao buscar dados na Open-Meteo:', error.message);
     } finally {
-      setLoadingForecast(false);
+      setLoadingOpenMeteo(false);
     }
   };
 
   useEffect(() => {
     if (data.latitude && data.longitude) {
-      fetchForecast(data.latitude, data.longitude);
+      fetchOpenMeteo(data.latitude, data.longitude);
     }
   }, [data.latitude, data.longitude]);
 
-  // Função para formatar os dados da previsão
-  const formatForecastData = (forecast) => {
-    const dailyForecasts = {};
-    forecast.forEach((item) => {
-      const date = item.dt_txt.split(' ')[0]; // Extrai apenas a data
-      if (!dailyForecasts[date]) {
-        dailyForecasts[date] = [];
-      }
-      dailyForecasts[date].push(item);
-    });
-
-    // Calcula os dados representativos por dia
-    return Object.entries(dailyForecasts).map(([date, values]) => {
-      const avgTemp = (
-        values.reduce((sum, val) => sum + val.main.temp, 0) / values.length
-      ).toFixed(1);
-      const avgHumidity = (
-        values.reduce((sum, val) => sum + val.main.humidity, 0) / values.length
-      ).toFixed(1);
-      const totalPrecipitation = values
-        .reduce((sum, val) => sum + (val.rain?.['3h'] || 0), 0)
-        .toFixed(1);
-
-      return {
-        date,
-        avgTemp,
-        avgHumidity,
-        totalPrecipitation,
-      };
-    });
-  };
-
-
+  // ==================== SEU CÓDIGO ANTIGO ====================
 
   const getTimeSeries = async (latitude, longitude) => {
     const API_URL = 'https://api.cnptia.embrapa.br/satveg/v2/series'; 
@@ -162,7 +120,7 @@ function ResultPage({ data, onBack }) {
       );
   
       if (response.data && response.data.listaSerie && response.data.listaDatas) {
-        return response.data; // Retorna o objeto completo
+        return response.data;
       } else {
         throw new Error('Resposta inesperada da API.');
       }
@@ -172,36 +130,29 @@ function ResultPage({ data, onBack }) {
     }
   };
 
-
   useEffect(() => {
     const fetchTimeSeries = async () => {
       const timeSeriesData = await getTimeSeries(data.latitude, data.longitude);
       setTimeSeries(timeSeriesData);
     };
-  
     fetchTimeSeries();
     calculateCarbonFootprint();
   }, []);
 
-
-  
-  
-
-
   const calculateCarbonFootprint = async () => {
     try {
-      // Supondo uma taxa de câmbio fixa (exemplo: 1 USD = 5.5 BRL)
       const exchangeRate = 5.5; 
-  
-      // Converte o valor de gasto em reais para dólares
       const electricityValueInUSD = parseFloat(data.gastoLuz) / exchangeRate;
   
+      const API_KEY_carbono = 'RdDP3Si90TKiPcIkWBBbQ';
+      const BASE_URL_carbono = 'https://www.carboninterface.com/api/v1/estimates';
+
       const response = await axios.post(
         BASE_URL_carbono,
         {
           type: 'electricity',
           electricity_unit: 'kwh',
-          electricity_value: electricityValueInUSD, // Consumo convertido para dólares
+          electricity_value: electricityValueInUSD, 
           country: 'US'
         },
         {
@@ -229,9 +180,6 @@ function ResultPage({ data, onBack }) {
     calculateCarbonFootprint();
   }, []);
 
-
-  // Fórmula usada Cálculo N=(ET−P)×A
-
   const calculateIrrigationDemand = () => {
     const kcValues = {
       Algodão: 0.85,
@@ -244,14 +192,12 @@ function ResultPage({ data, onBack }) {
       Soja: 0.9,
       Trigo: 1.15,
     };
-
     let irrigationDemand = 0;
     data.culturas.forEach((cultura) => {
       if (kcValues[cultura]) {
         irrigationDemand += kcValues[cultura] * 5 * 30; 
       }
     });
-
     return irrigationDemand.toFixed(2);
   };
 
@@ -271,53 +217,52 @@ function ResultPage({ data, onBack }) {
     );
   }
 
-    const filterDataByYear = (dates, values) => {
-      const groupedByYear = {};
+  const filterDataByYear = (dates, values) => {
+    const groupedByYear = {};
+    dates.forEach((date, index) => {
+      const year = new Date(date).getFullYear();
+      if (!groupedByYear[year]) {
+        groupedByYear[year] = [];
+      }
+      groupedByYear[year].push({ date, value: values[index] });
+    });
 
-      // Agrupa os valores por ano
-      dates.forEach((date, index) => {
-        const year = new Date(date).getFullYear();
-        if (!groupedByYear[year]) {
-          groupedByYear[year] = [];
-        }
-        groupedByYear[year].push({ date, value: values[index] });
+    const filteredDates = [];
+    const filteredValues = [];
+    Object.keys(groupedByYear).forEach((year) => {
+      const points = groupedByYear[year];
+      const step = Math.max(1, Math.floor(points.length / 5));
+      const selectedPoints = points.filter((_, index) => index % step === 0).slice(0, 5);
+      selectedPoints.forEach((point) => {
+        filteredDates.push(point.date);
+        filteredValues.push(point.value);
       });
+    });
 
-      // Reduz cada grupo para exatamente 5 pontos por ano
-      const filteredDates = [];
-      const filteredValues = [];
-      Object.keys(groupedByYear).forEach((year) => {
-        const points = groupedByYear[year];
-        const step = Math.max(1, Math.floor(points.length / 5)); // Escolhe 5 pontos uniformemente
-
-        const selectedPoints = points.filter((_, index) => index % step === 0).slice(0, 5); // Garante no máximo 5
-        selectedPoints.forEach((point) => {
-          filteredDates.push(point.date);
-          filteredValues.push(point.value);
-        });
-      });
-
-      return { filteredDates, filteredValues };
-    };
-
-
-
+    return { filteredDates, filteredValues };
+  };
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Resultados</Text>
+
+      {/* Card: Demanda de Irrigação */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Demanda de Irrigação</Text>
         <Text style={styles.cardContent}>
           Estimativa de volume de água necessário para irrigação com base nas culturas: {calculateIrrigationDemand()} mm/mês
         </Text>
       </View>
+
+      {/* Card: Índice de Segurança Hídrica */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Índice de Segurança Hídrica</Text>
         <Text style={styles.cardContent}>
           Índice estimado para sua região: {calculateWaterSecurityIndex()}
         </Text>
       </View>
+
+      {/* Card: Pegada de Carbono */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Pegada de Carbono</Text>
         {carbonFootprint ? (
@@ -325,109 +270,109 @@ function ResultPage({ data, onBack }) {
             Estoque estimado de carbono na propriedade: {carbonFootprint.carbon_mt} tCO₂
           </Text>
         ) : (
-          <Text style={styles.cardContent}>Erro ao calcular a pegada de carbono. É necessário informar o consumo de energia elétrica.</Text>
-        )}
-      </View>
-      
-    
-      <View style={styles.card}>
-      <Text style={styles.cardTitle}>Série Temporal NDVI da Embrapa</Text>
-      <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
-      O NDVI (Índice de Vegetação por Diferença Normalizada) é uma ferramenta para monitorar a saúde da vegetação e entender seu papel na sustentabilidade. Calculado a partir de imagens de satélite, esse índice varia de -1 a 1 e reflete a "vitalidade" da vegetação: valores mais altos indicam plantas saudáveis e bem desenvolvidas, enquanto valores baixos podem sugerir áreas degradadas, solo exposto ou vegetação estressada. 
-      O NDVI permite identificar áreas com vegetação saudável ou degradada, apoiando suas práticas agrícolas.
-      Esse índice reflete como mudanças climáticas, como secas ou enchentes, impactam a vegetação, ajudando a planejar futuras ações. Por meio do apoio das ferramentas da Embrapa, este gráfico mostra a variação do índice NDVI da sua propriedade ao longo dos anos, com 5 valores representativos por ano. Atenção: por ser um serviço pago, pode ser que ele não esteja disponível.
-      </Text>
-      {timeSeries ? (
-        (() => {
-          const { filteredDates, filteredValues } = filterDataByYear(
-            timeSeries.listaDatas,
-            timeSeries.listaSerie
-          );
-
-          const chartWidth = filteredDates.length * 80; // Largura dinâmica baseada na quantidade de dados
-
-          return (
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-              <LineChart
-                data={{
-                  labels: filteredDates.map((date) => new Date(date).getFullYear().toString()), // Rótulos no eixo X
-                  datasets: [
-                    {
-                      data: filteredValues, // Valores filtrados
-                    },
-                  ],
-                }}
-                width={chartWidth} // Largura do gráfico ajustada ao número de pontos
-                height={220} // Altura do gráfico
-                yAxisSuffix=""
-                yAxisInterval={1} // Intervalo entre os valores do eixo Y
-                chartConfig={{
-                  backgroundColor: '#343541',
-                  backgroundGradientFrom: '#1E1E2C',
-                  backgroundGradientTo: '#343541',
-                  decimalPlaces: 4, // Número de casas decimais nos valores
-                  color: (opacity = 1) => `rgba(16, 163, 127, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                  style: {
-                    borderRadius: 16,
-                  },
-                  propsForDots: {
-                    r: '5',
-                    strokeWidth: '2',
-                    stroke: '#1E5F74',
-                  },
-                }}
-                bezier={false} // Gráfico com linhas retas entre os pontos
-                style={{
-                  marginVertical: 8,
-                  borderRadius: 16,
-                }}
-              />
-            </ScrollView>
-          );
-        })()
-      ) : (
-        <Text style={styles.cardContent}>
-          Não foi possível carregar os dados da série temporal.
-        </Text>
-      )}
-    </View>
-
-
-    {/* <View style={styles.card}>
-        <Text style={styles.cardTitle}>Previsão do Tempo (Próximos 5 Dias)</Text>
-        {loadingForecast ? (
-          <ActivityIndicator size="large" color="#10A37F" />
-        ) : forecastData ? (
-          formatForecastData(forecastData.list).slice(0, 5).map((day, index) => (
-            <View key={index} style={styles.forecastItem}>
-              <Text style={styles.cardContent}>📅 Data: {day.date}</Text>
-              <Text style={styles.cardContent}>
-                🌡️ Temperatura Média: {day.avgTemp}°C
-              </Text>
-              <Text style={styles.cardContent}>
-                💧 Umidade Média: {day.avgHumidity}%
-              </Text>
-              <Text style={styles.cardContent}>
-                🌧️ Precipitação Total: {day.totalPrecipitation} mm
-              </Text>
-            </View>
-          ))
-        ) : (
           <Text style={styles.cardContent}>
-            Não foi possível carregar os dados da previsão.
+            Erro ao calcular a pegada de carbono. É necessário informar o consumo de energia elétrica.
           </Text>
         )}
-      </View> */}
+      </View>
 
+      {/* Card: Série Temporal NDVI da Embrapa */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Série Temporal NDVI da Embrapa</Text>
+        <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
+          O NDVI (Índice de Vegetação por Diferença Normalizada) é uma ferramenta para monitorar a saúde da vegetação...
+        </Text>
+        {timeSeries ? (
+          (() => {
+            const { filteredDates, filteredValues } = filterDataByYear(
+              timeSeries.listaDatas,
+              timeSeries.listaSerie
+            );
+            const chartWidth = filteredDates.length * 80; 
+            return (
+              <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                <LineChart
+                  data={{
+                    labels: filteredDates.map((date) =>
+                      new Date(date).getFullYear().toString()
+                    ),
+                    datasets: [
+                      {
+                        data: filteredValues,
+                      },
+                    ],
+                  }}
+                  width={chartWidth}
+                  height={220}
+                  yAxisSuffix=""
+                  yAxisInterval={1}
+                  chartConfig={{
+                    backgroundColor: '#343541',
+                    backgroundGradientFrom: '#1E1E2C',
+                    backgroundGradientTo: '#343541',
+                    decimalPlaces: 4,
+                    color: (opacity = 1) => `rgba(16, 163, 127, ${opacity})`,
+                    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                    style: {
+                      borderRadius: 16,
+                    },
+                    propsForDots: {
+                      r: '5',
+                      strokeWidth: '2',
+                      stroke: '#1E5F74',
+                    },
+                  }}
+                  bezier={false}
+                  style={{
+                    marginVertical: 8,
+                    borderRadius: 16,
+                  }}
+                />
+              </ScrollView>
+            );
+          })()
+        ) : (
+          <Text style={styles.cardContent}>
+            Não foi possível carregar os dados da série temporal.
+          </Text>
+        )}
+      </View>
 
-
+      {/* =================== NOVO CARD: DADOS DA OPEN-METEO =================== */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Condições Climáticas da sua propriedade</Text>
+        {loadingOpenMeteo ? (
+          <Text style={styles.cardContent}>Carregando dados climáticos...</Text>
+        ) : openMeteoData && openMeteoData.hourly ? (
+          <View>
+            <Text style={styles.cardContent}>
+              🌡️ Temperatura: {openMeteoData.hourly.temperature_2m ? openMeteoData.hourly.temperature_2m[0] : '--'} °C
+            </Text>
+            <Text style={styles.cardContent}>
+              💧 Umidade do Ar: {openMeteoData.hourly.relativehumidity_2m ? openMeteoData.hourly.relativehumidity_2m[0] : '--'}%
+            </Text>
+            <Text style={styles.cardContent}>
+              ☔ Precipitação: {openMeteoData.hourly.precipitation ? openMeteoData.hourly.precipitation[0] : '--'} mm
+            </Text>
+            <Text style={styles.cardContent}>
+              🌱 Umidade do Solo (1 a 3cm): {openMeteoData.hourly.soil_moisture_1_3cm ? openMeteoData.hourly.soil_moisture_1_3cm[0] : '--'} m³/m³
+            </Text>
+            <Text style={styles.cardContent}>
+              💨 Velocidade do Vento: {openMeteoData.hourly.windspeed_10m ? openMeteoData.hourly.windspeed_10m[0] : '--'} km/h
+            </Text>
+          </View>
+        ) : (
+          <Text style={styles.cardContent}>
+            Não foi possível obter os dados climáticos.
+          </Text>
+        )}
+      </View>
+      {/* ====================================================== */}
+      <View style={{ height: 10 }} />
 
 
       <Button title="Voltar" onPress={onBack} color="#10A37F" />
-
-          {/* Espaço invisível entre os botões */}
-          <View style={{ height: 20 }} />
+      <View style={{ height: 30 }} />
     </ScrollView>
   );
 }
@@ -461,7 +406,6 @@ export default function LabPage() {
     latitude: '',
     longitude: '',
     areaRural: '',
-    weather: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -479,7 +423,7 @@ export default function LabPage() {
     setTimeout(() => {
       setLoading(false);
       setShowResults(true);
-    }, 2000); // Simula carregamento
+    }, 1000); // Simula carregamento
   };
 
   const registrarDados = () => {
