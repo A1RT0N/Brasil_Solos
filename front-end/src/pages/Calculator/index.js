@@ -16,25 +16,66 @@ export default function Calculator({ navigation }) {
   const [data, setData] = useState(null);
 
   const options = [
-    { label: 'Açúcar', value: 'acucar' },
-    { label: 'Algodão', value: 'algodao' },
-    { label: 'Arroz', value: 'arroz' },
-    { label: 'Bezerro', value: 'bezerro' },
-    { label: 'Boi', value: 'boi-gordo' },
-    { label: 'Café', value: 'cafe' },
-    { label: 'Citros', value: 'citros' },
-    { label: 'Etanol', value: 'etanol' },
-    { label: 'Feijão', value: 'feijao' },
-    { label: 'Frango', value: 'frango' },
-    { label: 'Leite', value: 'leite' },
-    { label: 'Mandioca', value: 'mandioca' },
-    { label: 'Milho', value: 'milho' },
-    { label: 'Ovos', value: 'ovos' },
-    { label: 'Soja', value: 'soja' },
-    { label: 'Suíno', value: 'suino' },
-    { label: 'Tilápia', value: 'tilapia' },
-    { label: 'Trigo', value: 'trigo' },
+    { label: 'Açúcar', value: 'https://www.cepea.esalq.usp.br/br/indicador/acucar.aspx' },
+    { label: 'Algodão', value: 'https://www.cepea.esalq.usp.br/br/indicador/algodao.aspx' },
+    { label: 'Arroz', value: 'https://www.cepea.esalq.usp.br/br/indicador/arroz.aspx' },
+    { label: 'Bezerro', value: 'https://www.cepea.esalq.usp.br/br/indicador/bezerro.aspx' },
+    { label: 'Boi', value: 'https://www.cepea.esalq.usp.br/br/indicador/boi-gordo.aspx' },
+    { label: 'Café', value: 'https://www.cepea.esalq.usp.br/br/indicador/cafe.aspx' },
+    { label: 'Citros', value: 'https://www.cepea.esalq.usp.br/br/indicador/citros.aspx' },
+    { label: 'Etanol', value: 'https://www.cepea.esalq.usp.br/br/indicador/etanol.aspx' },
+    { label: 'Feijão', value: 'https://www.cepea.esalq.usp.br/br/indicador/feijao.aspx' },
+    { label: 'Frango', value: 'https://www.cepea.esalq.usp.br/br/indicador/frango.aspx' },
+    { label: 'Leite', value: 'https://www.cepea.esalq.usp.br/br/indicador/leite.aspx' },
+    { label: 'Mandioca', value: 'https://www.cepea.esalq.usp.br/br/indicador/mandioca.aspx' },
+    { label: 'Milho', value: 'https://www.cepea.esalq.usp.br/br/indicador/milho.aspx' },
+    { label: 'Ovos', value: 'https://www.cepea.esalq.usp.br/br/indicador/ovos.aspx' },
+    { label: 'Soja', value: 'https://www.cepea.esalq.usp.br/br/indicador/soja.aspx' },
+    { label: 'Suíno', value: 'https://www.cepea.esalq.usp.br/br/indicador/suino.aspx' },
+    { label: 'Tilápia', value: 'https://www.cepea.esalq.usp.br/br/indicador/tilapia.aspx' },
+    { label: 'Trigo', value: 'https://www.cepea.esalq.usp.br/br/indicador/trigo.aspx' },
   ];
+
+  const extractTableContent = (htmlString) => {
+    const regex = /<table[^>]*>([\s\S]*?)<\/table>/;
+    const match = htmlString.match(regex);
+    return match ? match[1] : 'Nenhuma tabela encontrada';
+  };
+
+  const extractTableData = (tableHtml) => {
+      // Extract headers manually
+      const headerStartIndex = tableHtml.indexOf('<thead>');
+      const headerEndIndex = tableHtml.indexOf('</thead>');
+      const headerSection = tableHtml.slice(headerStartIndex, headerEndIndex);
+  
+      const headers = [];
+      const headerRegex = /<th.*?>(.*?)<\/th>/g;
+      let headerMatch;
+      while ((headerMatch = headerRegex.exec(headerSection)) !== null) {
+          headers.push(headerMatch[1].trim().replace(/&nbsp;/g, ''));
+      }
+  
+      // Extract rows manually
+      const bodyStartIndex = tableHtml.indexOf('<tbody>');
+      const bodyEndIndex = tableHtml.indexOf('</tbody>');
+      const bodySection = tableHtml.slice(bodyStartIndex, bodyEndIndex);
+  
+      const rows = [];
+      const rowRegex = /<tr.*?>(.*?)<\/tr>/gs;
+      const cellRegex = /<td.*?>(.*?)<\/td>/g;
+      let rowMatch;
+      while ((rowMatch = rowRegex.exec(bodySection)) !== null) {
+          const rowContent = rowMatch[1];
+          const row = [];
+          let cellMatch;
+          while ((cellMatch = cellRegex.exec(rowContent)) !== null) {
+              row.push(cellMatch[1].trim());
+          }
+          rows.push(row);
+      }
+  
+      return { headers, rows };
+  };
 
   const handleScrape = async () => {
     if (!input) {
@@ -43,33 +84,17 @@ export default function Calculator({ navigation }) {
     }
 
     try {
-      // Faz o fetch da página
-      const response = await fetch(`https://www.cepea.esalq.usp.br/br/indicador/${input}.aspx`);
-      if (!response.ok) {
-        throw new Error(`Erro ao acessar o site: ${response.statusText}`);
-      }
+      const response = await fetch(input);
       const html = await response.text();
 
-      // Processa o HTML usando DOMParser
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const tabela = doc.querySelector('#imagenet-indicador1');
 
-      if (!tabela) {
-        Alert.alert('Erro', 'Não foi possível encontrar os dados na página.');
-        return;
-      }
+      const tableContent = extractTableContent(html);
 
-      // Extrai os cabeçalhos e linhas da tabela
-      const headers = Array.from(tabela.querySelectorAll('thead th')).map(th => th.textContent.trim());
-      const rows = Array.from(tabela.querySelectorAll('tbody tr')).map(tr => 
-        Array.from(tr.querySelectorAll('td')).map(td => td.textContent.trim())
-      );
+      const tableData = extractTableData(tableContent);
 
-      setData({ headers, rows });
-      Alert.alert('Sucesso', 'Dados extraídos com sucesso!');
+      setData(tableData);
     } catch (error) {
-      Alert.alert('Erro', `Erro ao realizar o scraping: ${error.message}`);
+      console.error('Erro ao buscar HTML:', error);
     }
   };
 

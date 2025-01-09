@@ -425,6 +425,9 @@ function ResultPage({ data, onBack }) {
 
 
       <Button title="Voltar" onPress={onBack} color="#10A37F" />
+
+          {/* Espaço invisível entre os botões */}
+          <View style={{ height: 20 }} />
     </ScrollView>
   );
 }
@@ -756,7 +759,7 @@ export default function LabPage() {
       <Button title="Processar Dados" onPress={processarDados} color="#10A37F" />
 
       {/* Espaço invisível entre os botões */}
-      <View style={{ height: 10 }} />
+      <View style={{ height: 20 }} />
 
     </ScrollView>
   );
