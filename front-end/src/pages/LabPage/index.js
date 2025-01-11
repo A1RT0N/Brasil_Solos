@@ -181,7 +181,7 @@ function ResultPage({ data, onBack }) {
     calculateCarbonFootprint();
   }, []);
 
-  const calculateIrrigationDemand = () => {
+  const calculateIrrigationDemand = (eto, precipitation = 0, efficiency = 0.85) => {
     const kcValues = {
       Algodão: 0.85,
       Arroz: 1.2,
@@ -193,14 +193,28 @@ function ResultPage({ data, onBack }) {
       Soja: 0.9,
       Trigo: 1.15,
     };
-    let irrigationDemand = 0;
+  
+    let totalDemand = 0;
+  
     data.culturas.forEach((cultura) => {
       if (kcValues[cultura]) {
-        irrigationDemand += kcValues[cultura] * 5 * 30; 
+        // Cálculo da ETc para a cultura
+        const etc = kcValues[cultura] * eto;
+  
+        // Necessidade líquida considerando precipitação
+        const nli = Math.max(etc - precipitation, 0);
+  
+        // Necessidade bruta considerando eficiência do sistema
+        const nbi = nli / efficiency;
+  
+        // Acumula a necessidade para todas as culturas
+        totalDemand += nbi * 30; // Multiplica por 30 para obter o valor mensal
       }
     });
-    return irrigationDemand.toFixed(2);
+  
+    return totalDemand.toFixed(2); // Retorna a demanda total em mm/mês
   };
+  
 
   const calculateWaterSecurityIndex = () => {
     const gastoAgua = parseFloat(data.gastoAgua || 0);
@@ -251,7 +265,8 @@ function ResultPage({ data, onBack }) {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Demanda de Irrigação</Text>
         <Text style={styles.cardContent}>
-          Estimativa de volume de água necessário para irrigação com base nas culturas: {calculateIrrigationDemand()} mm/mês
+          Estimativa de volume de água necessário para irrigação com base nas culturas: {calculateIrrigationDemand()} mm/mês. {"\n"}
+          Fonte: FAO Irrigation and Drainage Paper 56 (1998)
         </Text>
       </View>
 
@@ -259,7 +274,7 @@ function ResultPage({ data, onBack }) {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Índice de Segurança Hídrica</Text>
         <Text style={styles.cardContent}>
-          Índice estimado para sua região: {calculateWaterSecurityIndex()}
+          Índice estimado para sua região: {calculateWaterSecurityIndex()}.
         </Text>
       </View>
 
@@ -281,10 +296,14 @@ function ResultPage({ data, onBack }) {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Série Temporal NDVI da Embrapa</Text>
         <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
-        O NDVI (Índice de Vegetação por Diferença Normalizada) é uma ferramenta para monitorar a saúde da vegetação e entender seu papel na sustentabilidade. Calculado a partir de imagens de satélite, esse índice varia de -1 a 1 e reflete a "vitalidade" da vegetação: valores mais altos indicam plantas saudáveis e bem desenvolvidas, enquanto valores baixos podem sugerir áreas degradadas, solo exposto ou vegetação estressada. 
-      O NDVI permite identificar áreas com vegetação saudável ou degradada, apoiando suas práticas agrícolas.
-      Esse índice reflete como mudanças climáticas, como secas ou enchentes, impactam a vegetação, ajudando a planejar futuras ações. Por meio do apoio das ferramentas da Embrapa, este gráfico mostra a variação do índice NDVI da sua propriedade ao longo dos anos, com 5 valores representativos por ano. Atenção: por ser um serviço pago, pode ser que ele não esteja disponível.
-        </Text>
+        O NDVI (Índice de Vegetação por Diferença Normalizada) é uma ferramenta para monitorar a saúde da vegetação e entender seu papel na sustentabilidade.{"\n"}
+        Calculado a partir de imagens de satélite, esse índice varia de -1 a 1 e reflete a "vitalidade" da vegetação: valores mais altos indicam plantas saudáveis e bem desenvolvidas, enquanto valores baixos podem sugerir áreas degradadas, solo exposto ou vegetação estressada.{"\n\n"}
+        O NDVI permite identificar áreas com vegetação saudável ou degradada, apoiando suas práticas agrícolas.{"\n"}
+        Esse índice reflete como mudanças climáticas, como secas ou enchentes, impactam a vegetação, ajudando a planejar futuras ações.{"\n"}
+        Por meio do apoio das ferramentas da Embrapa, este gráfico mostra a variação do índice NDVI da sua propriedade ao longo dos anos, com 5 valores representativos por ano.{"\n"}
+        Atenção: arraste o gráfico para a direita para vizualizar os dados ao longo do tempo.
+      </Text>
+
         {timeSeries ? (
           (() => {
             const { filteredDates, filteredValues } = filterDataByYear(
@@ -345,7 +364,7 @@ function ResultPage({ data, onBack }) {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Condições Climáticas da sua propriedade</Text>
         <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
-          Dados em tempo real das condições climáticas da latitude e longitude informadas por você no formulário anterior:
+          Dados em tempo real do clima da latitude e longitude informadas:
         </Text>
 
         {loadingOpenMeteo ? (
@@ -407,6 +426,10 @@ function ResultPage({ data, onBack }) {
                 ? openMeteoData.hourly.soil_temperature_18cm[0]
                 : '--'} °C
             </Text>
+
+            <Text style={styles.cardContent}>
+              Fonte: Open Meta Data
+            </Text>
           </View>
         ) : (
           <Text style={styles.cardContent}>
@@ -439,7 +462,6 @@ export default function LabPage() {
     culturas: [],
     gastoAgua: '',
     fonteAgua: [],
-    aguaAnoInteiro: false,
     irrigacao: false,
     tempoIrrigacao: '',
     fonteEnergia: '',
@@ -456,6 +478,11 @@ export default function LabPage() {
     latitude: '',
     longitude: '',
     areaRural: '',
+    aguaAnoInteiro: false,
+    irrigacao: false,
+    frequenciaIrrigacao: '',
+    volumeAguaMes: '',
+    transporte: [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -473,7 +500,7 @@ export default function LabPage() {
     setTimeout(() => {
       setLoading(false);
       setShowResults(true);
-    }, 1000); // Simula carregamento
+    }, 500); // Simula carregamento
   };
 
   const registrarDados = () => {
@@ -500,19 +527,38 @@ export default function LabPage() {
   }
 
   const handleInputChange = (field, value) => {
+    // Validação de campos de latitude e longitude no formato DMS
     if (field === 'latitude' || field === 'longitude') {
       setForm({ ...form, [field]: value }); // Armazena o valor original
       try {
         const decimalValue = dmsToDecimal(value); // Converte para decimal
-        setForm({ ...form, [field]: decimalValue.toString() }); // Salva como string decimal
+        setForm((prevForm) => ({
+          ...prevForm,
+          [field]: decimalValue.toString(), // Salva como string decimal
+        }));
       } catch (error) {
-        console.error('Erro ao converter coordenada:', error.message);
+        console.error(`Erro ao converter ${field}:`, error.message);
       }
-    } else {
-      setForm({ ...form, [field]: value });
+    } 
+    // Validação de campos numéricos
+    else if (['volumeAguaMes', 'gastoAgua', 'gastoLuz', 'gastoCombustivel', 'idade', 'areaRural'].includes(field)) {
+      if (!isNaN(value)) {
+        setForm((prevForm) => ({
+          ...prevForm,
+          [field]: value, // Salva o valor numérico como string
+        }));
+      } else {
+        console.error(`O campo ${field} deve conter apenas valores numéricos.`);
+      }
+    } 
+    // Atualização padrão para outros campos
+    else {
+      setForm((prevForm) => ({
+        ...prevForm,
+        [field]: value,
+      }));
     }
-  };
-  
+  };  
   
 
   const toggleCheckbox = (field, value) => {
@@ -551,7 +597,7 @@ export default function LabPage() {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Preencha os Dados da Propriedade</Text>
 
-      <Text style={styles.title}>Já preencheu? Se sim:</Text>
+      <Text style={styles.title}>Já preencheu? Se sim, clique:</Text>
       {/* Espaço invisível entre os botões */}
       <View style={{ height: 5 }} />
 
@@ -579,10 +625,11 @@ export default function LabPage() {
         value={form.idade}
         onChangeText={(text) => handleInputChange('idade', text)}
         keyboardType="numeric"
+        placeholderTextColor="#BBB"
       />
 
       <Text style={styles.sectionSubtitle}>Perfil</Text>
-      {['Proprietário Rural', 'Estudante USP', 'Engenheiro(a) ou Gestor(a) Ambiental'].map((item) => (
+      {['Proprietário Rural', 'Estudante universitário', 'Engenheiro(a) ou Gestor(a) Ambiental'].map((item) => (
         <TouchableOpacity key={item} onPress={() => handleInputChange('perfil', item)}>
           <Text style={form.perfil === item ? styles.selectedOption : styles.option}>
             {item}
@@ -592,12 +639,16 @@ export default function LabPage() {
 
       <Text style={styles.sectionTitle}>Sua Propriedade</Text>
 
-      <Text style={[styles.text, { marginBottom: 10 }]}>
-        Você conhece seu código de propriedade rural (SICAR)? Se não,{' '}
+
+
+      <View style={[styles.card, { marginBottom: 10 }]}>
+  <Text style={[styles.cardContent, { color: '#FFF' }]}>
+  Você conhece seu código de propriedade rural (SICAR)? Se não,{' '}
         <Text style={styles.link} onPress={openLink}>
           clique aqui.
         </Text>
-      </Text>
+  </Text>
+</View>
 
       <View style={[styles.card, { marginBottom: 10 }]}>
   <Text style={[styles.cardContent, { color: '#FFF' }]}>
@@ -609,12 +660,24 @@ export default function LabPage() {
 </View>
 
 
+<View style={[styles.card, { marginBottom: 10 }]}>
+  <Text style={[styles.cardContent, { color: '#FFF' }]}>
+  Atenção: quando for colar os dados do SICAR, principalmente a latitude e longitude, eles serão recalculados automaticamente.
+  </Text>
+</View>
+      
+
+
+      Atenção: quando for colar os dados do SICAR, principalmente a latitude e longitude, eles serão recalculados automaticamente.
+
+
       <TextInput
         style={styles.input}
         placeholder="Código do Imóvel Rural (SICAR)"
         value={form.codigoImovel}
         onChangeText={(text) => handleInputChange('codigoImovel', text)}
         keyboardType="numeric"
+        placeholderTextColor="#BBB"
       />
 
     <TextInput
@@ -623,6 +686,7 @@ export default function LabPage() {
       value={form.latitude}
       onChangeText={(text) => handleInputChange('latitude', text)}
       keyboardType="numeric"
+      placeholderTextColor="#BBB"
     />
 
     <TextInput
@@ -631,6 +695,7 @@ export default function LabPage() {
       value={form.longitude}
       onChangeText={(text) => handleInputChange('longitude', text)}
       keyboardType="numeric"
+      placeholderTextColor="#BBB"
     />
 
 
@@ -640,6 +705,7 @@ export default function LabPage() {
         value={form.areaRural}
         onChangeText={(text) => handleInputChange('areaRural', text)}
         keyboardType="numeric"
+        placeholderTextColor="#BBB"
       />
 
       
@@ -648,12 +714,13 @@ export default function LabPage() {
       {[
         'Para consumo da família',
         'Para comércio',
+        'Paisagismo',
         'Lavoura',
         'Horta',
         'Pomar',
-        'Pequena criação',
+        'Sistema Agroflorestal',
         'Pecuária',
-        'Produtos derivados e processados',
+        'Produtos derivados e processados (agroindústria)',
       ].map((item) => (
         <TouchableOpacity key={item} onPress={() => toggleCheckbox('tipoProducao', item)}>
           <Text style={form.tipoProducao.includes(item) ? styles.selectedOption : styles.option}>
@@ -672,7 +739,7 @@ export default function LabPage() {
       ))}
 
       <Text style={styles.sectionTitle}>Produtos Derivados e Processados</Text>
-      {['Laticínios', 'Carnes Processadas', 'Doces', 'Conservas', 'Outro (digitar)'].map((item) => (
+      {['Laticínios', 'Carnes Processadas', 'Doces', 'Conservas'].map((item) => (
         <TouchableOpacity key={item} onPress={() => toggleCheckbox('produtos', item)}>
           <Text style={form.produtos.includes(item) ? styles.selectedOption : styles.option}>
             {item}
@@ -680,15 +747,20 @@ export default function LabPage() {
         </TouchableOpacity>
       ))}
 
+    <TextInput
+        style={styles.input}
+        placeholder="Outros"
+        value={form.produtos}
+        onChangeText={(text) => handleInputChange('produtos', text)}
+        placeholderTextColor="#BBB"
+    />
+
+
 
       <Text style={styles.sectionTitle}>Segurança Hídrica</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Gasto em conta de água (R$)"
-        value={form.gastoAgua}
-        onChangeText={(text) => handleInputChange('gastoAgua', text)}
-        keyboardType="numeric"
-      />
+
+      
+      <Text style={styles.sectionSubtitle}>Água usada na propriedade</Text>
       {['Rede da Cidade', 'Poço', 'Rio, lago, açude, represa'].map((item) => (
         <TouchableOpacity key={item} onPress={() => toggleCheckbox('fonteAgua', item)}>
           <Text style={form.fonteAgua.includes(item) ? styles.selectedOption : styles.option}>
@@ -697,21 +769,74 @@ export default function LabPage() {
         </TouchableOpacity>
       ))}
 
+<Text style={styles.sectionSubtitle}>Tem água o ano inteiro?</Text>
+{['Sim', 'Não'].map((item) => (
+  <TouchableOpacity key={item} onPress={() => handleInputChange('aguaAnoInteiro', item === 'Sim')}>
+    <Text style={form.aguaAnoInteiro === (item === 'Sim') ? styles.selectedOption : styles.option}>
+      {item}
+    </Text>
+  </TouchableOpacity>
+))}
+
+<Text style={styles.sectionSubtitle}>Utiliza algum sistema de irrigação?</Text>
+{['Sim', 'Não'].map((item) => (
+  <TouchableOpacity key={item} onPress={() => handleInputChange('irrigacao', item === 'Sim')}>
+    <Text style={form.irrigacao === (item === 'Sim') ? styles.selectedOption : styles.option}>
+      {item}
+    </Text>
+  </TouchableOpacity>
+))}
+
+<TextInput
+  style={styles.input}
+  placeholder="Qual a frequência de irrigação?"
+  value={form.frequenciaIrrigacao}
+  onChangeText={(text) => handleInputChange('frequenciaIrrigacao', text)}
+  placeholderTextColor="#BBB"
+/>
+
+<TextInput
+  style={styles.input}
+  placeholder="Gasto em volume de água por mês (litros)"
+  value={form.volumeAguaMes}
+  onChangeText={(text) => handleInputChange('volumeAguaMes', text)}
+  keyboardType="numeric"
+  placeholderTextColor="#BBB"
+/>
+<TextInput
+        style={styles.input}
+        placeholder="Gasto em conta de água (R$)"
+        value={form.gastoAgua}
+        onChangeText={(text) => handleInputChange('gastoAgua', text)}
+        keyboardType="numeric"
+        placeholderTextColor="#BBB"
+      />
+
       <Text style={styles.sectionTitle}>Fonte de Energia na Propriedade</Text>
-      {['Rede da Cidade', 'Energia Solar', 'Energia Eólica', 'Gás', 'Outra (digitar)'].map((item) => (
+      {['Rede da Cidade', 'Energia Solar', 'Energia Eólica', 'Gás'].map((item) => (
         <TouchableOpacity key={item} onPress={() => toggleCheckbox('fonteEnergia', item)}>
           <Text style={form.fonteEnergia.includes(item) ? styles.selectedOption : styles.option}>
             {item}
           </Text>
         </TouchableOpacity>
       ))}
-      <TextInput
-        style={styles.input}
-        placeholder="Gasto mensal com energia elétrica (R$)"
-        value={form.gastoLuz}
-        onChangeText={(text) => handleInputChange('gastoLuz', text)}
-        keyboardType="numeric"
-      />
+       <TextInput
+    style={styles.input}
+    placeholder="Outra fonte de energia"
+    value={form.outraFonteEnergia} // Nova chave separada
+    onChangeText={(text) => handleInputChange('outraFonteEnergia', text)}
+    placeholderTextColor="#BBB"
+/>
+
+<TextInput
+    style={styles.input}
+    placeholder="Gasto mensal com energia elétrica (R$)"
+    value={form.gastoLuz}
+    onChangeText={(text) => handleInputChange('gastoLuz', text)}
+    keyboardType="numeric"
+    placeholderTextColor="#BBB"
+/>
+
 
       <Text style={styles.sectionTitle}>Mudanças no Clima</Text>
       {['Seca', 'Inundação', 'Enchente', 'Insetos e Pragas', 'Doenças nas Plantas', 'Doenças nos Animais', 'Doenças na Família'].map((item) => (
@@ -726,18 +851,56 @@ export default function LabPage() {
         placeholder="Outras mudanças percebidas"
         value={form.outrosMudancas}
         onChangeText={(text) => handleInputChange('outrosMudancas', text)}
+        placeholderTextColor="#BBB"
       />
 
 
 
       <Text style={styles.sectionTitle}>Práticas de Manejo do Solo</Text>
-      {['Adubação Verde', 'Plantio Direto', 'Rotação de Culturas', 'Reflorestamento', 'Outro (digitar)'].map((item) => (
+      {['Adubação Verde', 'Plantio Direto', 'Rotação de Culturas', 'Reflorestamento'].map((item) => (
         <TouchableOpacity key={item} onPress={() => toggleCheckbox('praticasManejo', item)}>
           <Text style={form.praticasManejo.includes(item) ? styles.selectedOption : styles.option}>
             {item}
           </Text>
         </TouchableOpacity>
       ))}
+      <TextInput
+    style={styles.input}
+    placeholder="Outras práticas de manejo"
+    value={form.outrasPraticasManejo} // Nova chave separada
+    onChangeText={(text) => handleInputChange('outrasPraticasManejo', text)}
+    placeholderTextColor="#BBB"
+/>
+
+
+<Text style={styles.sectionTitle}>Meios de Transporte</Text>
+{[
+  'Uso próprio - sem transporte',
+  'Carro Elétrico',
+  'Carro a Álcool',
+  'Carro a Gasolina',
+  'Trator',
+  'Barco',
+  'Avião',
+  'Máquinas Agrícolas',
+  'Bomba Hidráulica',
+].map((item) => (
+  <TouchableOpacity key={item} onPress={() => toggleCheckbox('transporte', item)}>
+    <Text style={form.transporte.includes(item) ? styles.selectedOption : styles.option}>
+      {item}
+    </Text>
+  </TouchableOpacity>
+))}
+
+<TextInput
+  style={styles.input}
+  placeholder="Gasto mensal com combustíveis (R$)"
+  value={form.gastoCombustivel}
+  onChangeText={(text) => handleInputChange('gastoCombustivel', text)}
+  keyboardType="numeric"
+  placeholderTextColor="#BBB"
+/>
+
 
 
       {/* Espaço invisível entre os botões */}
@@ -753,7 +916,7 @@ export default function LabPage() {
       <Button title="Processar Dados" onPress={processarDados} color="#10A37F" />
 
       {/* Espaço invisível entre os botões */}
-      <View style={{ height: 20 }} />
+      <View style={{ height: 30 }} />
 
     </ScrollView>
   );
@@ -848,41 +1011,3 @@ const styles = StyleSheet.create({
 });
 
 
-
-
-// <View style={styles.card}>
-// <Text style={styles.cardTitle}>Clima de Hoje na sua propriedade</Text>
-// {data.weather ? (
-//   <View style={{ marginBottom: 10 }}>
-//     <Text style={styles.cardContent}>📅 Data: {data.weather.time}</Text>
-//     <Text style={styles.cardContent}>
-//       🌡️ Temperatura Máxima: {data.weather.temperature2mMax}°C
-//     </Text>
-//     <Text style={styles.cardContent}>
-//       🌡️ Temperatura Mínima: {data.weather.temperature2mMin}°C
-//     </Text>
-//     <Text style={styles.cardContent}>
-//       🌞 Índice UV Máximo: {data.weather.uvIndexMax}
-//     </Text>
-//     <Text style={styles.cardContent}>
-//       🌧️ Precipitação (mm): {data.weather.rainSum}
-//     </Text>
-//     <Text style={styles.cardContent}>
-//       ⏱️ Horas de Precipitação: {data.weather.precipitationHours}
-//     </Text>
-//     <Text style={styles.cardContent}>
-//       💨 Velocidade Máxima do Vento: {data.weather.windSpeed10mMax} km/h
-//     </Text>
-//     <Text style={styles.cardContent}>
-//       🧭 Direção Dominante do Vento: {data.weather.windDirection10mDominant}°
-//     </Text>
-//     <Text style={styles.cardContent}>
-//       🌾 Evapotranspiração: {data.weather.et0FaoEvapotranspiration} mm
-//     </Text>
-//   </View>
-// ) : (
-//   <Text style={styles.cardContent}>
-//     ❌ Não foi possível obter os dados climáticos.
-//   </Text>
-// )}
-// </View>

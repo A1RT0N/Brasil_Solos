@@ -23,6 +23,7 @@ export default function Calculator({ navigation }) {
     { label: 'Boi', value: 'https://www.cepea.esalq.usp.br/br/indicador/boi-gordo.aspx' },
     { label: 'Café', value: 'https://www.cepea.esalq.usp.br/br/indicador/cafe.aspx' },
     { label: 'Citros', value: 'https://www.cepea.esalq.usp.br/br/indicador/citros.aspx' },
+    { label: 'Dólar', value: 'https://www.cepea.esalq.usp.br/br/serie-de-preco/dolar.aspx' },
     { label: 'Etanol', value: 'https://www.cepea.esalq.usp.br/br/indicador/etanol.aspx' },
     { label: 'Feijão', value: 'https://www.cepea.esalq.usp.br/br/indicador/feijao.aspx' },
     { label: 'Frango', value: 'https://www.cepea.esalq.usp.br/br/indicador/frango.aspx' },
@@ -77,6 +78,137 @@ export default function Calculator({ navigation }) {
       return { headers, rows };
   };
 
+  const extractTableDataDolar = (tableHtml) => {
+    // ----------- 1) Extrair conteúdo do <thead> -----------
+    const theadStart = tableHtml.indexOf('<thead>');
+    const theadEnd = tableHtml.indexOf('</thead>');
+    
+    let headers = [];
+    
+    if (theadStart !== -1 && theadEnd !== -1) {
+      // Captura a parte do texto que corresponde ao <thead>
+      const theadContent = tableHtml.substring(theadStart, theadEnd + 8); // +8 para incluir '</thead>'
+  
+      // Agora vamos percorrer manualmente cada <th> dentro desse trecho
+      let searchStart = 0;
+      while (true) {
+        // Encontra o próximo <th
+        const thOpenTagIndex = theadContent.indexOf('<th', searchStart);
+        if (thOpenTagIndex === -1) {
+          break; // Não há mais <th>
+        }
+        
+        // Pula até o '>' que fecha a tag de abertura <th ...>
+        const thOpenTagCloseIndex = theadContent.indexOf('>', thOpenTagIndex);
+        if (thOpenTagCloseIndex === -1) {
+          break; // Não encontrou fechamento de <th ...>
+        }
+        
+        // Encontra o </th>
+        const thCloseTagIndex = theadContent.indexOf('</th>', thOpenTagCloseIndex);
+        if (thCloseTagIndex === -1) {
+          break; // Não encontrou </th>
+        }
+        
+        // Extrai o conteúdo entre <th> e </th>
+        const thInnerText = theadContent
+          .substring(thOpenTagCloseIndex + 1, thCloseTagIndex)
+          .trim()
+          .replace(/&nbsp;/g, '');
+  
+        headers.push(thInnerText);
+  
+        // Atualiza o índice de pesquisa para continuar procurando <th> adiante
+        searchStart = thCloseTagIndex + 5; // +5 para pular o '</th>'
+      }
+    }
+  
+    // ----------- 2) Extrair conteúdo do <tbody> -----------
+    const tbodyStart = tableHtml.indexOf('<tbody>');
+    const tbodyEnd = tableHtml.indexOf('</tbody>');
+    
+    let rows = [];
+  
+    if (tbodyStart !== -1 && tbodyEnd !== -1) {
+      // Captura a parte do texto que corresponde ao <tbody>
+      const tbodyContent = tableHtml.substring(tbodyStart, tbodyEnd + 8); // +8 para incluir '</tbody>'
+  
+      // Vamos percorrer cada <tr> dentro do tbody
+      let trSearchStart = 0;
+      while (true) {
+        // Encontra o próximo <tr
+        const trOpenTagIndex = tbodyContent.indexOf('<tr', trSearchStart);
+        if (trOpenTagIndex === -1) {
+          break; // Não há mais <tr>
+        }
+  
+        // Pula até o '>' que fecha a tag de abertura <tr ...>
+        const trOpenTagCloseIndex = tbodyContent.indexOf('>', trOpenTagIndex);
+        if (trOpenTagCloseIndex === -1) {
+          break; // Não encontrou fechamento de <tr>
+        }
+  
+        // Encontra o </tr>
+        const trCloseTagIndex = tbodyContent.indexOf('</tr>', trOpenTagCloseIndex);
+        if (trCloseTagIndex === -1) {
+          break; // Não encontrou </tr>
+        }
+  
+        // Extrai o conteúdo interno do <tr> (onde estarão os <td>)
+        const trInner = tbodyContent.substring(trOpenTagCloseIndex + 1, trCloseTagIndex);
+  
+        // Agora percorremos cada <td> dentro do trInner
+        let rowData = [];
+        let tdSearchStart = 0;
+        while (true) {
+          const tdOpenTagIndex = trInner.indexOf('<td', tdSearchStart);
+          if (tdOpenTagIndex === -1) {
+            break; // Não há mais <td>
+          }
+  
+          // Pula até o '>' que fecha a tag de abertura <td ...>
+          const tdOpenTagCloseIndex = trInner.indexOf('>', tdOpenTagIndex);
+          if (tdOpenTagCloseIndex === -1) {
+            break; // Não encontrou fechamento de <td>
+          }
+  
+          // Encontra o </td>
+          const tdCloseTagIndex = trInner.indexOf('</td>', tdOpenTagCloseIndex);
+          if (tdCloseTagIndex === -1) {
+            break; // Não encontrou </td>
+          }
+  
+          // Extrai o conteúdo entre <td> e </td>
+          const tdInnerText = trInner
+            .substring(tdOpenTagCloseIndex + 1, tdCloseTagIndex)
+            .trim();
+  
+          rowData.push(tdInnerText);
+  
+          // Atualiza o índice de pesquisa para continuar procurando <td> adiante
+          tdSearchStart = tdCloseTagIndex + 5; // +5 para pular o '</td>'
+        }
+  
+        rows.push(rowData);
+  
+        // Atualiza o índice de pesquisa de <tr> para o próximo <tr>
+        trSearchStart = trCloseTagIndex + 5; // +5 para pular o '</tr>'
+      }
+    }
+  
+    // Força sempre o primeiro header a ser "Data"
+    if (headers.length > 0) {
+      headers[0] = 'Data';
+    }
+  
+    // Retorna o objeto com headers e rows
+    return {
+      headers,
+      rows
+    };
+  };
+  
+
   const handleScrape = async () => {
     if (!input) {
       Alert.alert('Erro', 'Por favor, selecione um indicador.');
@@ -90,7 +222,19 @@ export default function Calculator({ navigation }) {
 
       const tableContent = extractTableContent(html);
 
-      const tableData = extractTableData(tableContent);
+
+      console.log(tableContent);
+
+
+
+      let tableData;
+      if (input === 'https://www.cepea.esalq.usp.br/br/serie-de-preco/dolar.aspx') {
+        tableData = extractTableDataDolar(tableContent);
+      } else {
+        tableData = extractTableData(tableContent);
+      }
+
+      
 
       setData(tableData);
     } catch (error) {
@@ -102,9 +246,9 @@ export default function Calculator({ navigation }) {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#343541" />
       <Card containerStyle={styles.card}>
-        <Card.Title style={styles.cardTitle}>Busca de Indicadores ESALQ</Card.Title>
+        <Card.Title style={styles.cardTitle}>Pesquisa de Indicadores CEPAE - ESALQ</Card.Title>
         <Card.Divider />
-        <Text style={styles.label}>Escolha o indicador:</Text>
+        <Text style={styles.label}>Clique e Escolha o indicador:</Text>
         <RNPickerSelect
           onValueChange={(value) => setInput(value)}
           items={options}

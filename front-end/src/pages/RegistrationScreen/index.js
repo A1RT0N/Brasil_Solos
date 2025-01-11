@@ -8,7 +8,7 @@ import { initializeApp } from 'firebase/app';
 import styles from './styles';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalContext } from '../../contexts/GlobalContext'; 
-import { Title } from 'react-native-paper';
+import { Title, Checkbox } from 'react-native-paper'; // <-- IMPORT DO CHECKBOX
 
 export default function RegistrationScreen() {
   const [fullName, setFullName] = useState('');
@@ -16,8 +16,11 @@ export default function RegistrationScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const { setGlobalEmail } = useContext(GlobalContext); // Utilizar o setGlobalEmail do contexto
-  const navigation = useNavigation(); // Utilize useNavigation para acessar o objeto de navegação
+  // Estado do checkbox
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const { setGlobalEmail } = useContext(GlobalContext);
+  const navigation = useNavigation();
 
   const firebaseApp = initializeApp(firebaseConfig);
 
@@ -26,6 +29,12 @@ export default function RegistrationScreen() {
   };
 
   const onRegisterPress = () => {
+    // Checa se o usuário marcou o checkbox
+    if (!acceptedTerms) {
+      alert('Você precisa concordar com os termos antes de prosseguir.');
+      return;
+    }
+
     if (password !== confirmPassword) {
       alert('Suas senhas não são iguais.');
       return;
@@ -42,8 +51,8 @@ export default function RegistrationScreen() {
           name: fullName.trim(),
         });
 
-        setGlobalEmail(email); // Atualiza o e-mail globalmente no contexto
-        navigation.navigate('MainTabNavigator'); // Redireciona para Home após o registro
+        setGlobalEmail(email);
+        navigation.navigate('MainTabNavigator');
       })
       .catch((error) => {
         alert(error);
@@ -53,7 +62,12 @@ export default function RegistrationScreen() {
   return (
     <View style={styles.container}>
       <KeyboardAwareScrollView style={{ flex: 1, width: '100%' }} keyboardShouldPersistTaps="always">
-        <Image style={styles.logo} source={require('../../../assets/icon.png')} />
+      <View style={{ alignItems: 'center', marginVertical: 20 }}>
+        <Text style={{ fontSize: 30, fontWeight: '900', color: '#fff', textAlign: 'center', marginTop: 30}}>
+          Registro
+        </Text>
+      </View>
+              
         <TextInput
           style={styles.input}
           placeholder="Nome"
@@ -92,9 +106,26 @@ export default function RegistrationScreen() {
           underlineColorAndroid="transparent"
           autoCapitalize="none"
         />
+
+        {/* CHECKBOX E TEXTO DE CONSENTIMENTO */}
+        <View style={{ width: '100%', alignItems: 'center', marginVertical: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 20 }}>
+            <Checkbox
+              status={acceptedTerms ? 'checked' : 'unchecked'}
+              onPress={() => setAcceptedTerms(!acceptedTerms)}
+            />
+            <Text style={{ flex: 1, fontSize: 12, color: '#fff' }}>
+              Concordo que estou ciente que meus dados poderão ser utilizados pela Escola Superior de 
+              Agricultura Luiz de Queiroz da Universidade de São Paulo (USP) e que eles serão protegidos 
+              conforme a lei brasileira e a LGPD.
+            </Text>
+          </View>
+        </View>
+
         <TouchableOpacity style={styles.button} onPress={onRegisterPress}>
           <Text style={styles.buttonTitle}>Criar conta</Text>
         </TouchableOpacity>
+        
         <View style={styles.footerView}>
           <Text style={styles.footerText}>
             Já possui uma conta?{' '}

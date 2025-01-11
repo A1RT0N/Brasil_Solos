@@ -43,7 +43,6 @@ export default function Home() {
   };
 
 
-  // ARRUMAR AQUI QUANDO CONSERTAR
 
   const fetchUserName = async () => {
     const firebaseApp = initializeApp(firebaseConfig);
@@ -89,10 +88,10 @@ export default function Home() {
     <View style={styles.container}>
       <Text style={styles.greeting}>Olá, {userName}! </Text>
       <Text style={styles.subGreeting}>Brasil Solos tem como missão conhecer melhor a realidade da sua propriedade rural, e propor soluções que aumentem o valor e a qualidade dos seus produtos.</Text>
-      <Text style={[styles.link, { marginBottom: 20 }]} onPress={handlePress}> Avalie nosso aplicativo clicando aqui!</Text>
+      <Text style={[styles.link, { marginBottom: 20 }, {fontSize: 18}]} onPress={handlePress}> Avalie nosso aplicativo clicando aqui!</Text>
 
       <ScrollView style={styles.scrollContainer}>
-        <HomeCard title="Atenção quanto às seguintes informações:">
+        <HomeCard title="Ao utilizar esse aplicativo, eu concordo:">
           {getTodayClasses().length ? (
             getTodayClasses().map((subject, index) => (
               <View key={index} style={[styles.card, styles.classCard]}>
@@ -105,7 +104,7 @@ export default function Home() {
           )}
         </HomeCard>
 
-        <HomeCard title="Notícias de Agro" button={
+        <HomeCard title="Notícias Agro" button={
     <TouchableOpacity style={styles.refreshButton} onPress={getRandomNews}>
       <Text style={styles.refreshButtonText}>Atualizar</Text>
     </TouchableOpacity>

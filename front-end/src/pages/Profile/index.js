@@ -78,7 +78,7 @@ export default function Profile({ navigation }) {
       {/* Se não encontrou NADA em ambas as coleções */}
       {!userData && !userData2 && (
         <View style={styles.infoSection}>
-          <Text style={styles.infoText}>Nenhuma informação encontrada.</Text>
+          <Text style={styles.infoText}>Sistema está fora do ar. </Text>
         </View>
       )}
 
@@ -191,6 +191,47 @@ export default function Profile({ navigation }) {
           <Text style={styles.value}>
             {userData2.irrigacao ? "Sim" : "Não"}
           </Text>
+
+          <Text style={styles.label}>Demanda de Irrigação:</Text>
+          <Text style={styles.value}>{userData2.demandaIrrigacao || "Não calculada"} mm/mês</Text>
+
+          <Text style={styles.label}>Índice de Segurança Hídrica:</Text>
+          <Text style={styles.value}>{userData2.indiceSegurancaHidrica || "Não calculado"}</Text>
+
+          {userData2.mudancasClimaticas && userData2.mudancasClimaticas.length > 0 && (
+            <>
+              <Text style={styles.label}>Mudanças Climáticas Percebidas:</Text>
+              <Text style={styles.value}>{userData2.mudancasClimaticas.join(", ")}</Text>
+            </>
+          )}
+
+          {userData2.praticasManejo && userData2.praticasManejo.length > 0 && (
+            <>
+              <Text style={styles.label}>Práticas de Manejo do Solo:</Text>
+              <Text style={styles.value}>{userData2.praticasManejo.join(", ")}</Text>
+            </>
+          )}
+
+          {userData2.produtos && userData2.produtos.length > 0 && (
+            <>
+              <Text style={styles.label}>Produtos Derivados e Processados:</Text>
+              <Text style={styles.value}>{userData2.produtos.join(", ")}</Text>
+            </>
+          )}
+
+          {userData2.transporte && userData2.transporte.length > 0 && (
+            <>
+              <Text style={styles.label}>Meios de Transporte:</Text>
+              <Text style={styles.value}>{userData2.transporte.join(", ")}</Text>
+            </>
+          )}
+
+          <Text style={styles.label}>Frequência de Irrigação:</Text>
+          <Text style={styles.value}>{userData2.frequenciaIrrigacao || "Não informado"}</Text>
+
+          <Text style={styles.label}>Volume de Água por Mês (litros):</Text>
+          <Text style={styles.value}>{userData2.volumeAguaMes || "Não informado"}</Text>
+
         </View>
       )}
     </ScrollView>
