@@ -667,10 +667,6 @@ export default function LabPage() {
 </View>
       
 
-
-      Atenção: quando for colar os dados do SICAR, principalmente a latitude e longitude, eles serão recalculados automaticamente.
-
-
       <TextInput
         style={styles.input}
         placeholder="Código do Imóvel Rural (SICAR)"
