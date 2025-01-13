@@ -248,7 +248,7 @@ export default function Calculator({ navigation }) {
       <Card containerStyle={styles.card}>
         <Card.Title style={styles.cardTitle}>Pesquisa de Indicadores CEPAE - ESALQ</Card.Title>
         <Card.Divider />
-        <Text style={styles.label}>Clique e Escolha o indicador:</Text>
+        <Text style={styles.label}>Clique, escolha o indicador e depois pressione "Buscar Dados":</Text>
         <RNPickerSelect
           onValueChange={(value) => setInput(value)}
           items={options}
