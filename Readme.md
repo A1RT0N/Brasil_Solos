@@ -4,7 +4,7 @@ Welcome to the **SUCN Project**! This guide will help you set up and run the pro
 
 ---
 
-## 🚀 Get Started (English)
+## 🇺🇸 Get Started
 
 ### Prerequisites
 1. Install **Python 3**, **Node.js**, and **npm**.
@@ -37,7 +37,7 @@ Welcome to the **SUCN Project**! This guide will help you set up and run the pro
 
 ---
 
-## 🇧🇷 Comece Agora (Português)
+## 🇧🇷 Comece Agora
 
 ### Requisitos
 1. Instale o **Python 3**, **Node.js** e **npm**.
