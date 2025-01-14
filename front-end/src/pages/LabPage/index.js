@@ -261,111 +261,9 @@ function ResultPage({ data, onBack }) {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Resultados</Text>
 
-      {/* Card: Demanda de Irrigação */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Demanda de Irrigação</Text>
-        <Text style={styles.cardContent}>
-          Estimativa de volume de água necessário para irrigação com base nas culturas: {calculateIrrigationDemand()} mm/mês. {"\n"}
-          Fonte: FAO Irrigation and Drainage Paper 56 (1998)
-        </Text>
-      </View>
-
-      {/* Card: Índice de Segurança Hídrica */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Índice de Segurança Hídrica</Text>
-        <Text style={styles.cardContent}>
-          Índice estimado para sua região: {calculateWaterSecurityIndex()}.
-        </Text>
-      </View>
-
-      {/* Card: Pegada de Carbono */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Pegada de Carbono</Text>
-        {carbonFootprint ? (
-          <Text style={styles.cardContent}>
-            Estoque estimado de carbono na propriedade: {carbonFootprint.carbon_mt} tCO₂
-          </Text>
-        ) : (
-          <Text style={styles.cardContent}>
-            Erro ao calcular a pegada de carbono. É necessário informar o consumo de energia elétrica.
-          </Text>
-        )}
-      </View>
-
-      {/* Card: Série Temporal NDVI da Embrapa */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Série Temporal NDVI da Embrapa</Text>
-        <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
-        O NDVI (Índice de Vegetação por Diferença Normalizada) é uma ferramenta para monitorar a saúde da vegetação e entender seu papel na sustentabilidade.{"\n"}
-        Calculado a partir de imagens de satélite, esse índice varia de -1 a 1 e reflete a "vitalidade" da vegetação: valores mais altos indicam plantas saudáveis e bem desenvolvidas, enquanto valores baixos podem sugerir áreas degradadas, solo exposto ou vegetação estressada.{"\n\n"}
-        O NDVI permite identificar áreas com vegetação saudável ou degradada, apoiando suas práticas agrícolas.{"\n"}
-        Esse índice reflete como mudanças climáticas, como secas ou enchentes, impactam a vegetação, ajudando a planejar futuras ações.{"\n"}
-        Por meio do apoio das ferramentas da Embrapa, este gráfico mostra a variação do índice NDVI da sua propriedade ao longo dos anos, com 5 valores representativos por ano.{"\n"}
-        Atenção: arraste o gráfico para a direita para vizualizar os dados ao longo do tempo.
-      </Text>
-
-        {timeSeries ? (
-          (() => {
-            const { filteredDates, filteredValues } = filterDataByYear(
-              timeSeries.listaDatas,
-              timeSeries.listaSerie
-            );
-            const chartWidth = filteredDates.length * 80; 
-            return (
-              <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                <LineChart
-                  data={{
-                    labels: filteredDates.map((date) =>
-                      new Date(date).getFullYear().toString()
-                    ),
-                    datasets: [
-                      {
-                        data: filteredValues,
-                      },
-                    ],
-                  }}
-                  width={chartWidth}
-                  height={220}
-                  yAxisSuffix=""
-                  yAxisInterval={1}
-                  chartConfig={{
-                    backgroundColor: '#343541',
-                    backgroundGradientFrom: '#1E1E2C',
-                    backgroundGradientTo: '#343541',
-                    decimalPlaces: 4,
-                    color: (opacity = 1) => `rgba(16, 163, 127, ${opacity})`,
-                    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                    style: {
-                      borderRadius: 16,
-                    },
-                    propsForDots: {
-                      r: '5',
-                      strokeWidth: '2',
-                      stroke: '#1E5F74',
-                    },
-                  }}
-                  bezier={false}
-                  style={{
-                    marginVertical: 8,
-                    borderRadius: 16,
-                  }}
-                />
-              </ScrollView>
-            );
-          })()
-        ) : (
-          <Text style={styles.cardContent}>
-            Não foi possível carregar os dados da série temporal.
-          </Text>
-        )}
-      </View>
-
-      {/* =================== CARD: DADOS DA OPEN-METEO =================== */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Condições Climáticas da sua propriedade</Text>
-        <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
-          Dados em tempo real do clima da latitude e longitude informadas:
-        </Text>
+            {/* =================== CARD: DADOS DA OPEN-METEO =================== */}
+            <View style={styles.card}>
+        <Text style={styles.cardTitle}>Condições Climáticas</Text>
 
         {loadingOpenMeteo ? (
           <Text style={styles.cardContent}>Carregando dados climáticos...</Text>
@@ -437,12 +335,107 @@ function ResultPage({ data, onBack }) {
           </Text>
         )}
       </View>
-      {/* ====================================================== */}
 
+      {/* Card: Série Temporal NDVI da Embrapa */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Série Temporal NDVI da Embrapa</Text>
+        <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
+        O NDVI (Índice de Vegetação por Diferença Normalizada) monitora a saúde da vegetação, evidenciando mudanças climáticas ao longo do tempo, variando de -1 a 1, onde valores altos indicam plantas saudáveis e valores baixos refletem degradação ou estresse. {'\n'}
+        Este gráfico apresenta a variação anual do NDVI de sua propriedade, com 5 registros por ano. Arraste o gráfico para explorar os dados ao longo do tempo.
+
+      </Text>
+
+        {timeSeries ? (
+          (() => {
+            const { filteredDates, filteredValues } = filterDataByYear(
+              timeSeries.listaDatas,
+              timeSeries.listaSerie
+            );
+            const chartWidth = filteredDates.length * 80; 
+            return (
+              <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                <LineChart
+                  data={{
+                    labels: filteredDates.map((date) =>
+                      new Date(date).getFullYear().toString()
+                    ),
+                    datasets: [
+                      {
+                        data: filteredValues,
+                      },
+                    ],
+                  }}
+                  width={chartWidth}
+                  height={220}
+                  yAxisSuffix=""
+                  yAxisInterval={1}
+                  chartConfig={{
+                    backgroundColor: '#343541',
+                    backgroundGradientFrom: '#1E1E2C',
+                    backgroundGradientTo: '#343541',
+                    decimalPlaces: 4,
+                    color: (opacity = 1) => `rgba(16, 163, 127, ${opacity})`,
+                    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                    style: {
+                      borderRadius: 16,
+                    },
+                    propsForDots: {
+                      r: '5',
+                      strokeWidth: '2',
+                      stroke: '#1E5F74',
+                    },
+                  }}
+                  bezier={false}
+                  style={{
+                    marginVertical: 8,
+                    borderRadius: 16,
+                  }}
+                />
+              </ScrollView>
+            );
+          })()
+        ) : (
+          <Text style={styles.cardContent}>
+            Não foi possível carregar os dados da série temporal.
+          </Text>
+        )}
+      </View>
+
+      {/* Card: Demanda de Irrigação */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Demanda de Irrigação</Text>
+        <Text style={styles.cardContent}>
+          Estimativa de volume de água necessário para irrigação com base nas culturas: {calculateIrrigationDemand()} mm/mês. {"\n"}
+          Fonte: FAO Irrigation and Drainage Paper 56 (1998)
+        </Text>
+      </View>
+
+      {/* Card: Índice de Segurança Hídrica */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Índice de Segurança Hídrica</Text>
+        <Text style={styles.cardContent}>
+          Índice estimado para sua região: {calculateWaterSecurityIndex()}. {"\n"}
+          Fonte: FAO Irrigation and Drainage Paper 56 (1998)
+        </Text>
+      </View>
+
+      {/* Card: Pegada de Carbono */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Pegada de Carbono</Text>
+        {carbonFootprint ? (
+          <Text style={styles.cardContent}>
+            Estoque estimado de carbono na propriedade: {carbonFootprint.carbon_mt} tCO₂. {"\n"}
+            Fonte: carboninterface.com
+          </Text>
+        ) : (
+          <Text style={styles.cardContent}>
+            Erro ao calcular a pegada de carbono. É necessário informar o consumo de energia elétrica.
+          </Text>
+        )}
+      </View>
 
 
       <View style={{ height: 10 }} />
-
 
       <Button title="Voltar" onPress={onBack} color="#10A37F" />
       <View style={{ height: 30 }} />
@@ -951,7 +944,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 15,
+    marginTop: 5,
   },
   option: {
     color: '#808080',
