@@ -1,36 +1,91 @@
-# Welcome to SUCN project from UNESCO 🇺🇳
+# SUCN Project from UNESCO 🇺🇳
 
-## Get started
+Welcome to the **SUCN Project**! This guide will help you set up and run the project in both Portuguese and English. Follow the instructions carefully to get started.
 
-1. Instale python3, node e npm do noje.js:
+---
 
-2. Instale dependências do projeto:
+## 🚀 Get Started (English)
 
+### Prerequisites
+1. Install **Python 3**, **Node.js**, and **npm**.
+
+### Installation Steps
+
+1. Install project dependencies:
    ```bash
    npm install
    npm install expo
    ```
 
-3. Em celulares Android, baixe Expo Go na Play Store. Para iOS use apenas a câmera para escanear o código.
+2. For Android devices, download **Expo Go** from the Play Store. For iOS, use the camera to scan the QR code.
 
-4. Rode o programa webscrap.js localizado em back-end/Cepae-esalq/webscrap.js com o comando:
+3. The web scraping feature does not require manual execution anymore as it is already running online at:
+   [https://dashboard.render.com/web/srv-ctpip93qf0us73ecfcp0/deploys/dep-ctpj9rq3esus73dihoqg](https://dashboard.render.com/web/srv-ctpip93qf0us73ecfcp0/deploys/dep-ctpj9rq3esus73dihoqg)
 
-NÃO VAI PRECISAR MAIS PQ JÁ RODA ONLINE EM https://dashboard.render.com/web/srv-ctpip93qf0us73ecfcp0/deploys/dep-ctpj9rq3esus73dihoqg
+4. Open a new terminal and run the project:
 
+   - To run on a **mobile device**, execute:
+     ```bash
+     npx expo start
+     ```
+     Then scan the QR code.
+
+   - To run on a **web browser**, execute:
+     ```bash
+     npm run web
+     ```
+
+---
+
+## 🇧🇷 Comece Agora (Português)
+
+### Requisitos
+1. Instale o **Python 3**, **Node.js** e **npm**.
+
+### Passos para Instalação
+
+1. Instale as dependências do projeto:
    ```bash
-   node webscrap.js
+   npm install
+   npm install expo
    ```
 
-5. Abra um novo terminal, vá para a pasta inicial e, caso queira rodar no celular, faça:
-   ```bash
-   npx expo start
-   ```
-   E escaneie o QR Code. Se quer rodar no navegador pelo pc, faça:
-   ```bash
-   npm run web
-   ```
+2. Em dispositivos Android, baixe o **Expo Go** na Play Store. Para iOS, use a câmera para escanear o código QR.
 
+3. O recurso de web scraping não precisa mais ser executado manualmente, pois já está online em:
+   [https://dashboard.render.com/web/srv-ctpip93qf0us73ecfcp0/deploys/dep-ctpj9rq3esus73dihoqg](https://dashboard.render.com/web/srv-ctpip93qf0us73ecfcp0/deploys/dep-ctpj9rq3esus73dihoqg)
 
+4. Abra um novo terminal e execute o projeto:
+
+   - Para rodar em um **dispositivo móvel**, execute:
+     ```bash
+     npx expo start
+     ```
+     E escaneie o código QR.
+
+   - Para rodar no **navegador**, execute:
+     ```bash
+     npm run web
+     ```
+
+---
+
+## 🎨 Visuals / Visuais
+
+Below are some visuals for reference. / Abaixo estão alguns visuais para referência.
+
+<div align="center">
+  <img src="images/image1.png" alt="Image 1" width="150">
+  <img src="images/image2.png" alt="Image 2" width="150">
+  <img src="images/image3.png" alt="Image 3" width="150">
+  <img src="images/image4.png" alt="Image 4" width="150">
+  <img src="images/image5.png" alt="Image 5" width="150">
+</div>
+
+---
+
+Make world greater again / Faça o mundo melhor de novo 🚀
+<!-- 
 # SITE DO PROJETO
 
 Eis aqui os site do projeto: https://expo.dev/accounts/ayrton_filho_dev/projects/SUCN/updates/0e9edeb8-e04f-4c7b-b9df-39131f7be9c6
@@ -75,4 +130,4 @@ Eis aqui os site do projeto: https://expo.dev/accounts/ayrton_filho_dev/projects
 ## Observações de problemas
 
 Caso tenha alguns problemas de permissão ao rodar o código, como esse: sh: 1: expo: Permission denied, rode isso (para linux):
-chmod +x node_modules/.bin/expo
+chmod +x node_modules/.bin/expo -->
