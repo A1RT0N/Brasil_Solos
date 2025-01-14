@@ -75,7 +75,7 @@ Welcome to the **SUCN Project**! This guide will help you set up and run the pro
 Below are some visuals for reference. / Abaixo estão alguns visuais para referência.
 
 <div align="center">
-  <img src="/images/1.png" alt="Image 1" width="200">
+  <img src="/images/1.png" alt="Image 1" width="250">
   <img src="/images/2.png" alt="Image 2" width="200">
   <img src="/images/3.png" alt="Image 3" width="200">
   <img src="/images/4.png" alt="Image 4" width="200">
