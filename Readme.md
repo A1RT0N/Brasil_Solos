@@ -83,7 +83,7 @@ Below are some visuals for reference. / Abaixo estão alguns visuais para refer�
 
 ---
 
-MEnjoy the app / Aproveite o aplicativo 🚀
+Enjoy the app / Aproveite o aplicativo 🚀
 <!-- 
 # SITE DO PROJETO
 
