@@ -83,7 +83,7 @@ Below are some visuals for reference. / Abaixo estão alguns visuais para refer�
 
 ---
 
-Make world greater again / Faça o mundo melhor de novo 🚀
+MEnjoy the app / Aproveite o aplicativo 🚀
 <!-- 
 # SITE DO PROJETO
 
