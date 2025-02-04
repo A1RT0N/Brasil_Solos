@@ -44,7 +44,6 @@ export default function Calculator({ navigation }) {
   };
 
   const extractTableData = (tableHtml) => {
-      // Extract headers manually
       const headerStartIndex = tableHtml.indexOf('<thead>');
       const headerEndIndex = tableHtml.indexOf('</thead>');
       const headerSection = tableHtml.slice(headerStartIndex, headerEndIndex);
@@ -56,7 +55,6 @@ export default function Calculator({ navigation }) {
           headers.push(headerMatch[1].trim().replace(/&nbsp;/g, ''));
       }
   
-      // Extract rows manually
       const bodyStartIndex = tableHtml.indexOf('<tbody>');
       const bodyEndIndex = tableHtml.indexOf('</tbody>');
       const bodySection = tableHtml.slice(bodyStartIndex, bodyEndIndex);
@@ -79,38 +77,31 @@ export default function Calculator({ navigation }) {
   };
 
   const extractTableDataDolar = (tableHtml) => {
-    // ----------- 1) Extrair conteúdo do <thead> -----------
     const theadStart = tableHtml.indexOf('<thead>');
     const theadEnd = tableHtml.indexOf('</thead>');
     
     let headers = [];
     
     if (theadStart !== -1 && theadEnd !== -1) {
-      // Captura a parte do texto que corresponde ao <thead>
       const theadContent = tableHtml.substring(theadStart, theadEnd + 8); // +8 para incluir '</thead>'
   
-      // Agora vamos percorrer manualmente cada <th> dentro desse trecho
       let searchStart = 0;
       while (true) {
-        // Encontra o próximo <th
         const thOpenTagIndex = theadContent.indexOf('<th', searchStart);
         if (thOpenTagIndex === -1) {
-          break; // Não há mais <th>
+          break; 
         }
         
-        // Pula até o '>' que fecha a tag de abertura <th ...>
         const thOpenTagCloseIndex = theadContent.indexOf('>', thOpenTagIndex);
         if (thOpenTagCloseIndex === -1) {
-          break; // Não encontrou fechamento de <th ...>
+          break; 
         }
         
-        // Encontra o </th>
         const thCloseTagIndex = theadContent.indexOf('</th>', thOpenTagCloseIndex);
         if (thCloseTagIndex === -1) {
-          break; // Não encontrou </th>
+          break; 
         }
         
-        // Extrai o conteúdo entre <th> e </th>
         const thInnerText = theadContent
           .substring(thOpenTagCloseIndex + 1, thCloseTagIndex)
           .trim()
@@ -118,90 +109,74 @@ export default function Calculator({ navigation }) {
   
         headers.push(thInnerText);
   
-        // Atualiza o índice de pesquisa para continuar procurando <th> adiante
         searchStart = thCloseTagIndex + 5; // +5 para pular o '</th>'
       }
     }
   
-    // ----------- 2) Extrair conteúdo do <tbody> -----------
     const tbodyStart = tableHtml.indexOf('<tbody>');
     const tbodyEnd = tableHtml.indexOf('</tbody>');
     
     let rows = [];
   
     if (tbodyStart !== -1 && tbodyEnd !== -1) {
-      // Captura a parte do texto que corresponde ao <tbody>
       const tbodyContent = tableHtml.substring(tbodyStart, tbodyEnd + 8); // +8 para incluir '</tbody>'
   
-      // Vamos percorrer cada <tr> dentro do tbody
       let trSearchStart = 0;
       while (true) {
-        // Encontra o próximo <tr
         const trOpenTagIndex = tbodyContent.indexOf('<tr', trSearchStart);
         if (trOpenTagIndex === -1) {
-          break; // Não há mais <tr>
+          break; 
         }
   
-        // Pula até o '>' que fecha a tag de abertura <tr ...>
         const trOpenTagCloseIndex = tbodyContent.indexOf('>', trOpenTagIndex);
         if (trOpenTagCloseIndex === -1) {
-          break; // Não encontrou fechamento de <tr>
+          break; 
         }
   
-        // Encontra o </tr>
         const trCloseTagIndex = tbodyContent.indexOf('</tr>', trOpenTagCloseIndex);
         if (trCloseTagIndex === -1) {
-          break; // Não encontrou </tr>
+          break; 
         }
   
-        // Extrai o conteúdo interno do <tr> (onde estarão os <td>)
         const trInner = tbodyContent.substring(trOpenTagCloseIndex + 1, trCloseTagIndex);
   
-        // Agora percorremos cada <td> dentro do trInner
         let rowData = [];
         let tdSearchStart = 0;
         while (true) {
           const tdOpenTagIndex = trInner.indexOf('<td', tdSearchStart);
           if (tdOpenTagIndex === -1) {
-            break; // Não há mais <td>
+            break; 
           }
   
-          // Pula até o '>' que fecha a tag de abertura <td ...>
           const tdOpenTagCloseIndex = trInner.indexOf('>', tdOpenTagIndex);
           if (tdOpenTagCloseIndex === -1) {
-            break; // Não encontrou fechamento de <td>
+            break; 
           }
   
-          // Encontra o </td>
           const tdCloseTagIndex = trInner.indexOf('</td>', tdOpenTagCloseIndex);
           if (tdCloseTagIndex === -1) {
-            break; // Não encontrou </td>
+            break; 
           }
   
-          // Extrai o conteúdo entre <td> e </td>
           const tdInnerText = trInner
             .substring(tdOpenTagCloseIndex + 1, tdCloseTagIndex)
             .trim();
   
           rowData.push(tdInnerText);
   
-          // Atualiza o índice de pesquisa para continuar procurando <td> adiante
-          tdSearchStart = tdCloseTagIndex + 5; // +5 para pular o '</td>'
+          tdSearchStart = tdCloseTagIndex + 5; 
         }
   
         rows.push(rowData);
   
-        // Atualiza o índice de pesquisa de <tr> para o próximo <tr>
-        trSearchStart = trCloseTagIndex + 5; // +5 para pular o '</tr>'
+        trSearchStart = trCloseTagIndex + 5; 
       }
     }
   
-    // Força sempre o primeiro header a ser "Data"
     if (headers.length > 0) {
       headers[0] = 'Data';
     }
   
-    // Retorna o objeto com headers e rows
     return {
       headers,
       rows
@@ -222,11 +197,6 @@ export default function Calculator({ navigation }) {
 
       const tableContent = extractTableContent(html);
 
-
-      console.log(tableContent);
-
-
-
       let tableData;
       if (input === 'https://www.cepea.esalq.usp.br/br/serie-de-preco/dolar.aspx') {
         tableData = extractTableDataDolar(tableContent);
@@ -238,7 +208,6 @@ export default function Calculator({ navigation }) {
 
       setData(tableData);
     } catch (error) {
-      console.error('Erro ao buscar HTML:', error);
     }
   };
 
@@ -250,20 +219,21 @@ export default function Calculator({ navigation }) {
         <Card.Divider />
         <Text style={styles.label}>Clique, escolha o indicador e depois pressione "Buscar Dados":</Text>
         <RNPickerSelect
-          onValueChange={(value) => setInput(value)}
-          items={options}
-          placeholder={{
-            label: 'Selecione um indicador...',
-            value: null,
-            color: '#B0B0B0',
-          }}
-          style={{
-            inputIOS: styles.picker,
-            inputAndroid: styles.picker,
-            placeholder: styles.placeholder,
-          }}
-          useNativeAndroidPickerStyle={false}
-        />
+        onValueChange={(value) => setInput(value || '')} 
+        items={options}
+        placeholder={{
+          label: 'Selecione um indicador...',
+          value: undefined, 
+          color: '#B0B0B0',
+        }}
+        style={{
+          inputIOS: styles.picker,
+          inputAndroid: styles.picker,
+          placeholder: styles.placeholder,
+        }}
+        useNativeAndroidPickerStyle={false}
+      />
+
         <View style={styles.spacing} />
         <Button
           title="Buscar Dados"
@@ -276,8 +246,8 @@ export default function Calculator({ navigation }) {
       {data && (
         <ScrollView style={styles.tableContainer}>
           <Table borderStyle={{ borderWidth: 1, borderColor: '#1E5F74' }}>
-            <Row data={data.headers} style={styles.head} textStyle={styles.text} />
-            <Rows data={data.rows} textStyle={styles.text} />
+          <Row data={data.headers} style={styles.head} textStyle={styles.text} />
+          <Rows data={data.rows} textStyle={styles.text} />
           </Table>
           <View style={{ height: 30 }} />
         </ScrollView>

@@ -9,8 +9,8 @@ import {
   Montserrat_600SemiBold,
 } from '@expo-google-fonts/montserrat';
 import { PaperProvider, MD3DarkTheme as PaperDarkMode } from 'react-native-paper';
-import { AuthProvider } from './front-end/src/contexts/AuthContext'; // Importa o AuthProvider
-import { GlobalProvider } from './front-end/src/contexts/GlobalContext'; // Importa o GlobalProvider
+import { AuthProvider } from './front-end/src/contexts/AuthContext'; 
+import { GlobalProvider } from './front-end/src/contexts/GlobalContext'; 
 import Toast from 'react-native-toast-message';
 
 export default function App() {
@@ -27,8 +27,8 @@ export default function App() {
 
   return (
     <PaperProvider theme={PaperDarkMode}>
-      <AuthProvider> {/* Envolve o aplicativo com AuthProvider */}
-        <GlobalProvider> {/* Envolve o aplicativo com GlobalProvider */}
+      <AuthProvider> 
+        <GlobalProvider> 
           <NavigationContainer>
             <AppRoutes />
           </NavigationContainer>

@@ -11,8 +11,8 @@ export default StyleSheet.create({
     },
     logo: {
         height: 120,
-        width: 120, // Garantir que largura e altura sejam iguais
-        borderRadius: 60, // Metade da largura/altura para torná-la redonda
+        width: 120, 
+        borderRadius: 60, 
         alignSelf: 'center',
         margin: 30,
     },

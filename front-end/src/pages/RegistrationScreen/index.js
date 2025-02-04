@@ -8,7 +8,7 @@ import { initializeApp } from 'firebase/app';
 import styles from './styles';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalContext } from '../../contexts/GlobalContext'; 
-import { Title, Checkbox } from 'react-native-paper'; // <-- IMPORT DO CHECKBOX
+import { Title, Checkbox } from 'react-native-paper'; 
 
 export default function RegistrationScreen() {
   const [fullName, setFullName] = useState('');
@@ -16,7 +16,6 @@ export default function RegistrationScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Estado do checkbox
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const { setGlobalEmail } = useContext(GlobalContext);
@@ -29,7 +28,6 @@ export default function RegistrationScreen() {
   };
 
   const onRegisterPress = () => {
-    // Checa se o usuário marcou o checkbox
     if (!acceptedTerms) {
       alert('Você precisa concordar com os termos antes de prosseguir.');
       return;
@@ -107,7 +105,6 @@ export default function RegistrationScreen() {
           autoCapitalize="none"
         />
 
-        {/* CHECKBOX E TEXTO DE CONSENTIMENTO */}
         <View style={{ width: '100%', alignItems: 'center', marginVertical: 10 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 20 }}>
             <Checkbox

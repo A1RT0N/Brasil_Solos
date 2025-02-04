@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
         setAuthToken(token);
         if (token) {
           const decodedToken = jwtDecode(token);
-          setUserId(decodedToken.id); // Supondo que o ID do usuário esteja no campo 'id'
+          setUserId(decodedToken.id); 
         }
       } catch (error) {
         console.error('Erro ao carregar o token:', error);

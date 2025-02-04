@@ -11,13 +11,12 @@ import ProfileScreen from "./pages/Profile";
 import StarterScreen from "./pages/Starter";
 import LoginScreen from "./pages/LoginScreen/index"
 
-import RegistrationScreen from "./pages/RegistrationScreen"; // Importe a tela de registro
+import RegistrationScreen from "./pages/RegistrationScreen"; 
 
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Higher-order component to wrap screens in a SafeAreaView
 function withSafeArea(Component) {
   return (props) => (
     <SafeAreaView style={styles.safeArea}>
@@ -31,7 +30,7 @@ function StarterStack() {
     <Stack.Navigator initialRouteName="Starter">
       <Stack.Screen
         name="Starter"
-        component={withSafeArea(StarterScreen)}
+        component={(props) => <WithSafeArea Component={StarterScreen} {...props} />}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
@@ -119,7 +118,11 @@ function MainTabNavigator() {
 export function AppRoutes() {
   return (
     <Stack.Navigator initialRouteName="Starter" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Starter" component={StarterStack} />
+      <Stack.Screen 
+        name="Starter" 
+        component={withSafeArea(StarterScreen)} 
+        options={{ headerShown: false }} 
+      />
       <Stack.Screen name="Login" component={withSafeArea(LoginScreen)} />
       <Stack.Screen name="Registration" component={withSafeArea(RegistrationScreen)} />
       <Stack.Screen name="MainTabNavigator" component={MainTabNavigator} />
@@ -127,9 +130,10 @@ export function AppRoutes() {
   );
 }
 
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#000", // Fundo padrão
+    backgroundColor: "#000", 
   },
 });

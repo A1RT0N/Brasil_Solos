@@ -28,8 +28,6 @@ import axios from 'axios';
 
 // Área do Imóvel Rural:1.253,36 ha
 
-
-
 // API's do AGRO API
 // const consumer_key = 'IQIC7kqNI0DVXl23ejDNsR9fb64a';
 // const consumer_secret = '2Btdt7fBq17pWdY_aduE2sofUFQa';
@@ -68,16 +66,12 @@ function ResultPage({ data, onBack }) {
   const [loading, setLoading] = useState(true);
   const [timeSeries, setTimeSeries] = useState(null);
 
-  // ==== Adicionados para Open-Meteo ====
   const [openMeteoData, setOpenMeteoData] = useState(null);
   const [loadingOpenMeteo, setLoadingOpenMeteo] = useState(true);
-  // =====================================
 
-   // Função para buscar dados de clima na Open-Meteo
    const fetchOpenMeteo = async (latitude, longitude) => {
     try {
       setLoadingOpenMeteo(true);
-      // Incluímos os novos parâmetros: soil_temperature_18cm, cloudcover, et0_fao_evapotranspiration
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relativehumidity_2m,precipitation,soil_moisture_1_3cm,windspeed_10m,soil_temperature_18cm,cloudcover,et0_fao_evapotranspiration`;
       const response = await axios.get(url);
       setOpenMeteoData(response.data);
@@ -93,8 +87,6 @@ function ResultPage({ data, onBack }) {
       fetchOpenMeteo(data.latitude, data.longitude);
     }
   }, [data.latitude, data.longitude]);
-
-  // ==================== SEU CÓDIGO ANTIGO ====================
 
   const getTimeSeries = async (latitude, longitude) => {
     const API_URL = 'https://api.cnptia.embrapa.br/satveg/v2/series'; 
@@ -198,21 +190,17 @@ function ResultPage({ data, onBack }) {
   
     data.culturas.forEach((cultura) => {
       if (kcValues[cultura]) {
-        // Cálculo da ETc para a cultura
         const etc = kcValues[cultura] * eto;
   
-        // Necessidade líquida considerando precipitação
         const nli = Math.max(etc - precipitation, 0);
   
-        // Necessidade bruta considerando eficiência do sistema
         const nbi = nli / efficiency;
   
-        // Acumula a necessidade para todas as culturas
-        totalDemand += nbi * 30; // Multiplica por 30 para obter o valor mensal
+        totalDemand += nbi * 30; 
       }
     });
   
-    return totalDemand.toFixed(2); // Retorna a demanda total em mm/mês
+    return totalDemand.toFixed(2); 
   };
   
 
@@ -260,14 +248,12 @@ function ResultPage({ data, onBack }) {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Resultados</Text>
-
-            {/* =================== CARD: DADOS DA OPEN-METEO =================== */}
             <View style={styles.card}>
         <Text style={styles.cardTitle}>Condições Climáticas</Text>
 
         {loadingOpenMeteo ? (
           <Text style={styles.cardContent}>Carregando dados climáticos...</Text>
-        ) : openMeteoData && openMeteoData.hourly ? (
+        ) : openMeteoData?.hourly ? (
           <View>
             <Text style={styles.cardContent}>
               🌡️ Temperatura (2 m):{' '}
@@ -303,7 +289,6 @@ function ResultPage({ data, onBack }) {
                 : '--'} km/h
             </Text>
 
-            {/* Novos dados solicitados */}
             <Text style={styles.cardContent}>
               💦 ET₀ (Evapotranspiração de referência):{' '}
               {openMeteoData.hourly.et0_fao_evapotranspiration
@@ -336,7 +321,6 @@ function ResultPage({ data, onBack }) {
         )}
       </View>
 
-      {/* Card: Série Temporal NDVI da Embrapa */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Série Temporal NDVI da Embrapa</Text>
         <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
@@ -401,7 +385,6 @@ function ResultPage({ data, onBack }) {
         )}
       </View>
 
-      {/* Card: Demanda de Irrigação */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Demanda de Irrigação</Text>
         <Text style={styles.cardContent}>
@@ -410,7 +393,6 @@ function ResultPage({ data, onBack }) {
         </Text>
       </View>
 
-      {/* Card: Índice de Segurança Hídrica */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Índice de Segurança Hídrica</Text>
         <Text style={styles.cardContent}>
@@ -419,7 +401,6 @@ function ResultPage({ data, onBack }) {
         </Text>
       </View>
 
-      {/* Card: Pegada de Carbono */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Pegada de Carbono</Text>
         {carbonFootprint ? (
@@ -449,34 +430,33 @@ export default function LabPage() {
   const { globalEmail } = useContext(GlobalContext);
 
   const [form, setForm] = useState({
-    user: globalEmail,
-    codigoImovel: '',
+    user: globalEmail || "",
+    codigoImovel: "",
     tipoProducao: [],
     culturas: [],
-    gastoAgua: '',
+    gastoAgua: "",
     fonteAgua: [],
     irrigacao: false,
-    tempoIrrigacao: '',
-    fonteEnergia: '',
-    gastoLuz: '',
+    tempoIrrigacao: "",
+    fonteEnergia: [],
+    gastoLuz: "",
     transporte: [],
-    gastoCombustivel: '',
+    gastoCombustivel: "",
     mudancasClimaticas: [],
-    outrosMudancas: '',
+    outrosMudancas: "",
     produtos: [],
     praticasManejo: [],
-    genero: '',
-    idade: '',
-    perfil: '',
-    latitude: '',
-    longitude: '',
-    areaRural: '',
+    genero: "",
+    idade: "",
+    perfil: "",
+    latitude: "",
+    longitude: "",
+    areaRural: "",
     aguaAnoInteiro: false,
-    irrigacao: false,
-    frequenciaIrrigacao: '',
-    volumeAguaMes: '',
-    transporte: [],
-  });
+    frequenciaIrrigacao: "",
+    volumeAguaMes: "",
+});
+
 
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -493,7 +473,7 @@ export default function LabPage() {
     setTimeout(() => {
       setLoading(false);
       setShowResults(true);
-    }, 500); // Simula carregamento
+    }, 500);
   };
 
   const registrarDados = () => {
@@ -506,7 +486,6 @@ export default function LabPage() {
   }
 
   const recuperarDados = async () => {
-
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getFirestore(firebaseApp);
     const propriedadesRef = collection(db, "propriedades");
@@ -514,44 +493,47 @@ export default function LabPage() {
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach((doc) => {
-      setForm(doc.data());
+        const data = doc.data();
+        setForm((prevForm) => ({
+            ...prevForm,
+            ...Object.keys(prevForm).reduce((acc, key) => {
+                acc[key] = data[key] !== undefined ? data[key] : prevForm[key]; 
+                return acc;
+            }, {}),
+        }));
     });
+};
 
-  }
 
   const handleInputChange = (field, value) => {
-    // Validação de campos de latitude e longitude no formato DMS
-    if (field === 'latitude' || field === 'longitude') {
-      setForm({ ...form, [field]: value }); // Armazena o valor original
-      try {
-        const decimalValue = dmsToDecimal(value); // Converte para decimal
+    if (field === "latitude" || field === "longitude") {
+        setForm({ ...form, [field]: value || "" }); 
+        try {
+            const decimalValue = dmsToDecimal(value); 
+            setForm((prevForm) => ({
+                ...prevForm,
+                [field]: decimalValue.toString() || "", 
+            }));
+        } catch (error) {
+            console.error(`Erro ao converter ${field}:`, error.message);
+        }
+    } else if (["volumeAguaMes", "gastoAgua", "gastoLuz", "gastoCombustivel", "idade", "areaRural"].includes(field)) {
+        if (!isNaN(value)) {
+            setForm((prevForm) => ({
+                ...prevForm,
+                [field]: value || "0", 
+            }));
+        } else {
+            console.error(`O campo ${field} deve conter apenas valores numéricos.`);
+        }
+    } else {
         setForm((prevForm) => ({
-          ...prevForm,
-          [field]: decimalValue.toString(), // Salva como string decimal
+            ...prevForm,
+            [field]: value || "", 
         }));
-      } catch (error) {
-        console.error(`Erro ao converter ${field}:`, error.message);
-      }
-    } 
-    // Validação de campos numéricos
-    else if (['volumeAguaMes', 'gastoAgua', 'gastoLuz', 'gastoCombustivel', 'idade', 'areaRural'].includes(field)) {
-      if (!isNaN(value)) {
-        setForm((prevForm) => ({
-          ...prevForm,
-          [field]: value, // Salva o valor numérico como string
-        }));
-      } else {
-        console.error(`O campo ${field} deve conter apenas valores numéricos.`);
-      }
-    } 
-    // Atualização padrão para outros campos
-    else {
-      setForm((prevForm) => ({
-        ...prevForm,
-        [field]: value,
-      }));
     }
-  };  
+};
+ 
   
 
   const toggleCheckbox = (field, value) => {
@@ -591,12 +573,10 @@ export default function LabPage() {
       <Text style={styles.title}>Preencha os Dados da Propriedade</Text>
 
       <Text style={styles.title}>Já preencheu? Se sim, clique:</Text>
-      {/* Espaço invisível entre os botões */}
       <View style={{ height: 5 }} />
 
       <Button title="Carregar os dados" onPress={recuperarDados} color="#10A37F" />
 
-      {/* Espaço invisível entre os botões */}
       <View style={{ height: 5 }} />
 
 
@@ -812,7 +792,7 @@ export default function LabPage() {
        <TextInput
     style={styles.input}
     placeholder="Outra fonte de energia"
-    value={form.outraFonteEnergia} // Nova chave separada
+    value={form.outraFonteEnergia} 
     onChangeText={(text) => handleInputChange('outraFonteEnergia', text)}
     placeholderTextColor="#BBB"
 />
@@ -856,7 +836,7 @@ export default function LabPage() {
       <TextInput
     style={styles.input}
     placeholder="Outras práticas de manejo"
-    value={form.outrasPraticasManejo} // Nova chave separada
+    value={form.outrasPraticasManejo} 
     onChangeText={(text) => handleInputChange('outrasPraticasManejo', text)}
     placeholderTextColor="#BBB"
 />
@@ -892,19 +872,16 @@ export default function LabPage() {
 
 
 
-      {/* Espaço invisível entre os botões */}
       <View style={{ height: 10 }} />
 
 
       <Button title="Salvar Dados" onPress={registrarDados} color="#10A37F" />
 
-      {/* Espaço invisível entre os botões */}
       <View style={{ height: 10 }} />
 
 
       <Button title="Processar Dados" onPress={processarDados} color="#10A37F" />
 
-      {/* Espaço invisível entre os botões */}
       <View style={{ height: 30 }} />
 
     </ScrollView>

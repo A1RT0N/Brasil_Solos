@@ -26,21 +26,17 @@ export default function Profile({ navigation }) {
         const firebaseApp = initializeApp(firebaseConfig);
         const db = getFirestore(firebaseApp);
 
-        // 1) Busca na coleção "users"
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("email", "==", globalEmail));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          // Pegue o primeiro doc que corresponde ao e-mail
           const userDocData = querySnapshot.docs[0].data();
           setUserData(userDocData);
         } else {
           setUserData(null);
         }
 
-        // 2) Busca na coleção "propriedades"
-        //    Aqui assumimos que o ID do documento é exatamente globalEmail (como mostrado no print)
         const propDocRef = doc(db, "propriedades", globalEmail);
         const propSnapshot = await getDoc(propDocRef);
 
@@ -75,14 +71,12 @@ export default function Profile({ navigation }) {
         <Text style={styles.title}>Perfil do Usuário</Text>
       </View>
 
-      {/* Se não encontrou NADA em ambas as coleções */}
       {!userData && !userData2 && (
         <View style={styles.infoSection}>
           <Text style={styles.infoText}>Sistema está fora do ar. </Text>
         </View>
       )}
 
-      {/* Se encontrou algum dado na coleção "users" */}
       {userData && (
         <View style={styles.infoSection}>
           <Text style={styles.infoText}>
@@ -118,18 +112,15 @@ export default function Profile({ navigation }) {
         </View>
       )}
 
-      {/* Se encontrou dados na coleção "propriedades" */}
       {userData2 && (
         <View style={styles.infoSection}>
           <Text style={styles.infoText}>
             Segue abaixo as informações de sua propriedade:
           </Text>
 
-          {/* Exemplo de como renderizar alguns campos do print que você enviou */}
           <Text style={styles.label}>Água o ano inteiro?</Text>
-          <Text style={styles.value}>
-            {userData2.aguaAnoInteiro ? "Sim" : "Não"}
-          </Text>
+          <Text>{userData2.aguaAnoInteiro ? "Sim" : "Não"}</Text>
+
 
           <Text style={styles.label}>Área Rural (ha):</Text>
           <Text style={styles.value}>{userData2.areaRural || "Não informado"}</Text>
@@ -137,7 +128,6 @@ export default function Profile({ navigation }) {
           <Text style={styles.label}>Código do Imóvel:</Text>
           <Text style={styles.value}>{userData2.codigoImovel || "Não informado"}</Text>
 
-          {/* Culturas (array) */}
           {userData2.culturas && userData2.culturas.length > 0 && (
             <>
               <Text style={styles.label}>Culturas:</Text>
@@ -145,7 +135,6 @@ export default function Profile({ navigation }) {
             </>
           )}
 
-          {/* Fonte de Água (array) */}
           {userData2.fonteAgua && userData2.fonteAgua.length > 0 && (
             <>
               <Text style={styles.label}>Fonte de Água:</Text>
@@ -153,7 +142,6 @@ export default function Profile({ navigation }) {
             </>
           )}
 
-          {/* Fonte de Energia (array) */}
           {userData2.fonteEnergia && userData2.fonteEnergia.length > 0 && (
             <>
               <Text style={styles.label}>Fonte de Energia:</Text>
@@ -161,7 +149,6 @@ export default function Profile({ navigation }) {
             </>
           )}
 
-          {/* Gastos */}
           <Text style={styles.label}>Gasto de Água (R$):</Text>
           <Text style={styles.value}>{userData2.gastoAgua || "Não informado"}</Text>
 
@@ -171,7 +158,6 @@ export default function Profile({ navigation }) {
           <Text style={styles.label}>Gasto de Combustível (R$):</Text>
           <Text style={styles.value}>{userData2.gastoCombustivel || "Não informado"}</Text>
 
-          {/* Gênero e idade, caso também estejam em 'propriedades' */}
           {userData2.genero && (
             <>
               <Text style={styles.label}>Gênero:</Text>
@@ -186,11 +172,9 @@ export default function Profile({ navigation }) {
             </>
           )}
 
-          {/* Irrigação (boolean) */}
           <Text style={styles.label}>Possui irrigação?</Text>
-          <Text style={styles.value}>
-            {userData2.irrigacao ? "Sim" : "Não"}
-          </Text>
+          <Text>{userData2.irrigacao ? "Sim" : "Não"}</Text>
+
 
           <Text style={styles.label}>Demanda de Irrigação:</Text>
           <Text style={styles.value}>{userData2.demandaIrrigacao || "Não calculada"} mm/mês</Text>

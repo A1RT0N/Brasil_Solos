@@ -25,7 +25,6 @@ fetch(url)
       if (error) {
         console.error("Erro ao salvar as notícias:", error);
       } else {
-        console.log("Notícias salvas com sucesso em noticias.json");
       }
     });
   })

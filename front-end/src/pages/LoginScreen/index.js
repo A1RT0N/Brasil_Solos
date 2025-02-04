@@ -26,11 +26,10 @@ export default function Login() {
 
     signInWithEmailAndPassword(auth, email, password)
         .then(() => {
-            setGlobalEmail(email); // Atualiza o e-mail globalmente
-            navigation.navigate("MainTabNavigator"); // Redireciona para a Home após o login
+            setGlobalEmail(email); 
+            navigation.navigate("MainTabNavigator"); 
         })
         .catch((error) => {
-            // Verifica se o erro está relacionado ao email ou senha inválidos
             if (error.code === 'auth/invalid-email') {
                 alert("Email inexistente. Verifique se digitou adequadamente!");
             } else {
@@ -86,10 +85,10 @@ export default function Login() {
       </KeyboardAwareScrollView>
       <View
           style={{
-            position: 'absolute', // Define posição fixa
-            bottom: 20, // Define distância do rodapé
-            alignItems: 'center', // Centraliza horizontalmente
-            width: '100%', // Garante que ocupe toda a largura
+            position: 'absolute', 
+            bottom: 20, 
+            alignItems: 'center', 
+            width: '100%', 
           }}>
           <ButtonViewText>
             Em parceria com{' '}
