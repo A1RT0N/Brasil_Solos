@@ -8,6 +8,9 @@ import {
   StatusBar,
 } from 'react-native';
 import { Button, Card } from 'react-native-elements';
+
+import { Title } from 'react-native-paper';
+
 import { Table, Row, Rows } from 'react-native-table-component';
 import RNPickerSelect from 'react-native-picker-select';
 
@@ -215,7 +218,7 @@ export default function Calculator({ navigation }) {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#343541" />
       <Card containerStyle={styles.card}>
-        <Card.Title style={styles.cardTitle}>Pesquisa de Indicadores CEPAE - ESALQ</Card.Title>
+        <Title>Pesquisa de Indicadores CEPAE - ESALQ</Title>
         <Card.Divider />
         <Text style={styles.label}>Clique, escolha o indicador e depois pressione "Buscar Dados":</Text>
         <RNPickerSelect

@@ -321,12 +321,13 @@ function ResultPage({ data, onBack }) {
         )}
       </View>
 
+
+
+
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Série Temporal NDVI da Embrapa</Text>
         <Text style={[styles.cardSubtitle, { color: '#FFFFFF' }]}>
-        O NDVI (Índice de Vegetação por Diferença Normalizada) monitora a saúde da vegetação, evidenciando mudanças climáticas ao longo do tempo, variando de -1 a 1, onde valores altos indicam plantas saudáveis e valores baixos refletem degradação ou estresse. {'\n'}
-        Este gráfico apresenta a variação anual do NDVI de sua propriedade, com 5 registros por ano. Arraste o gráfico para explorar os dados ao longo do tempo.
-
+        Em manutenção ... 
       </Text>
 
         {timeSeries ? (
@@ -380,7 +381,7 @@ function ResultPage({ data, onBack }) {
           })()
         ) : (
           <Text style={styles.cardContent}>
-            Não foi possível carregar os dados da série temporal.
+            Não foi possível carregar os dados da série temporal. 
           </Text>
         )}
       </View>
@@ -977,3 +978,6 @@ const styles = StyleSheet.create({
 });
 
 
+
+// O NDVI (Índice de Vegetação por Diferença Normalizada) monitora a saúde da vegetação, evidenciando mudanças climáticas ao longo do tempo, variando de -1 a 1, onde valores altos indicam plantas saudáveis e valores baixos refletem degradação ou estresse. {'\n'}
+// Este gráfico apresenta a variação anual do NDVI de sua propriedade, com 5 registros por ano. Arraste o gráfico para explorar os dados ao longo do tempo.
