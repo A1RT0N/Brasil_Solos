@@ -119,7 +119,7 @@ export default function Profile({ navigation }) {
           </Text>
 
           <Text style={styles.label}>Água o ano inteiro?</Text>
-          <Text>{userData2.aguaAnoInteiro ? "Sim" : "Não"}</Text>
+          <Text style={styles.value}>{userData2.aguaAnoInteiro ? "Sim" : "Não"}</Text>
 
 
           <Text style={styles.label}>Área Rural (ha):</Text>
@@ -173,7 +173,7 @@ export default function Profile({ navigation }) {
           )}
 
           <Text style={styles.label}>Possui irrigação?</Text>
-          <Text>{userData2.irrigacao ? "Sim" : "Não"}</Text>
+          <Text style={styles.value}>{userData2.irrigacao ? "Sim" : "Não"}</Text>
 
 
           <Text style={styles.label}>Demanda de Irrigação:</Text>
